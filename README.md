@@ -9,13 +9,13 @@
 
 log:
  cấu trúc file:
-QuanlyDanhba.h - > ChucNamg.h - > HotrohienthiCSVFILE.h - > hienthi.cpp
+QuanlyDanhba.h - > ChucNang.h - > HotrohienthiCSVFILE.h - > hienthi.cpp
 
 Date.h // lớp riêng để định nghĩa birthday
 file danhba.csv //chứa thông tin dữ liệu(dung notepad hoặc exel mở ra là hiểu)
 
  cấu trúc class:
-QuanlyDanhba - > ChucNamg - > HotroHienthi - > hienthi.cpp
+QuanlyDanhba - > ChucNang - > HotroHienthi - > hienthi.cpp
    lớp cha       lớp con         lớp con        
 
 QuanlyDanhba: bao gồm chứa dữ liệu vector và các thành phần tên,sdt,quanhe,ngaysinh,ghichu(quá tải toán tử cin để làm chức năng thêm)//cho đủ yêu cầu bài th
