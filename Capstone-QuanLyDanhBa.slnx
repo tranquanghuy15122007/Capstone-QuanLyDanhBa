@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Capstone-QuanLyDanhBa.vcxproj" Id="350c32a0-d5e1-435c-8d2d-570b8d4f9540" />
+</Solution>
