@@ -8,6 +8,7 @@
 #include <vector>
 #include <iomanip>
 #include "date.h"
+#include "hotro.h"
 
 using namespace std;
 
@@ -96,7 +97,10 @@ public:
 
         for (int idx = 25; idx >= 0; idx--) {
             vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
+
+            for (int i = static_cast<int>(nhom.size()) - 1; i >= 0; i--)
+            {
+                const auto& nguoi = nhom[i];
                 cout << "| " << left << setw(24) << nguoi->GetName()
                     << " | " << setw(13) << nguoi->GetPhone()
                     << " | " << setw(15) << nguoi->GetRelationship()

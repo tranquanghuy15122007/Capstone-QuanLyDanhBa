@@ -27,6 +27,9 @@
     <ClInclude Include="ChucNang.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hotro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="hienthi.cpp">

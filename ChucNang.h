@@ -185,4 +185,81 @@ public:
             cout << "Bo qua thao tac sua.\n";
         }
     }
+
+    //Hiển thị danh sách liên hệ lọc theo tên nhóm quan hệ
+    void LocTheoTenNhom()
+    {
+        string findRelation;
+        cout << "Nhap ten nhom quan he can loc: ";
+        cin.ignore();
+        getline(cin, findRelation);
+        cout << endl;
+
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+        cout << "| " << left << setw(24) << "Ten"
+            << " | " << setw(13) << "SDT"
+            << " | " << setw(15) << "Quan He"
+            << " | " << setw(15) << "Ngay Sinh"
+            << " | " << setw(34) << "Ghi Chu" << " |\n";
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = getvector(idx);
+            for (const auto& nguoi : nhom) {
+
+                string relationship = nguoi->GetRelationship();
+                transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
+
+                transform(findRelation.begin(), findRelation.end(), findRelation.begin(), ::tolower);
+
+                if (relationship.find(findRelation) != string::npos)
+                {
+                    cout << "| " << left << setw(24) << nguoi->GetName()
+                        << " | " << setw(13) << nguoi->GetPhone()
+                        << " | " << setw(15) << nguoi->GetRelationship()
+                        << " | " << setw(15) << nguoi->GetBirthday().DateToString()
+                        << " | " << setw(34) << nguoi->GetNote() << " |\n";
+                }
+
+            }
+        }
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
+
+    //Hiển thị danh sách liên hệ sắp sinh nhật trong năm
+    void DanhSachSapSinhNhat()
+    {
+        vector<QuanlyDanhba*> danhsach;
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = getvector(idx);
+            for (const auto& nguoi : nhom) {
+                if (nguoi->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0)
+                {
+                    danhsach.push_back(nguoi);
+                }
+            }
+        }
+
+        sort(danhsach.begin(), danhsach.end(), [](const QuanlyDanhba* ng1, const QuanlyDanhba* ng2) {
+            return ng1->GetBirthday().DemSoNgayDenSinhNhatTrongNam() < ng2->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
+            });
+
+
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+        cout << "| " << left << setw(24) << "Ten"
+            << " | " << setw(13) << "SDT"
+            << " | " << setw(15) << "Quan He"
+            << " | " << setw(15) << "Ngay Sinh"
+            << " | " << setw(34) << "Ghi Chu" << " |\n";
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+        for (const auto& nguoi : danhsach) {
+            cout << "| " << left << setw(24) << nguoi->GetName()
+                << " | " << setw(13) << nguoi->GetPhone()
+                << " | " << setw(15) << nguoi->GetRelationship()
+                << " | " << setw(15) << nguoi->GetBirthday().DateToString()
+                << " | " << setw(34) << nguoi->GetNote() << " |\n";
+        }
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
 };

@@ -40,5 +40,8 @@ int main() {
     qlDanhBa.Capnhatfilekhithem(tenFile);
     qlDanhBa.Hienthisapxep();
 
+    qlDanhBa.LocTheoTenNhom();
+    qlDanhBa.DanhSachSapSinhNhat();
+
     return 0;
 }

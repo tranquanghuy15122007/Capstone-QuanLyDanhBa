@@ -124,7 +124,53 @@ public:
 		return !(*this < d) && !(*this == d);
 	}
 
-	int CountDayToBirthdayInCurrentYear() const
+	int DemSoNgayDenSinhNhatTrongNam() const
+	{
+		Date now = Date::Now();
+		int TongSoNgayHienTaiDenHetNam = 0;
+		for (int i = now.GetMonth(); i <= 12; i++)
+		{
+			TongSoNgayHienTaiDenHetNam += Date::GetCountDayOfMonth(i, now.GetYear());
+		}
+		TongSoNgayHienTaiDenHetNam -= now.GetDay();
+
+		int TongSoNgay = 0;
+		for (int i = Month; i <= 12; i++)
+		{
+			TongSoNgay += Date::GetCountDayOfMonth(i, Year);
+		}
+		TongSoNgay -= Day;
+
+		return TongSoNgayHienTaiDenHetNam - TongSoNgay;
+	}
+
+	static int GetCountDayOfMonth(int month, int year)
+	{
+		Date d(1, month, year);
+		if (month > 0 && month <= 12 && year > 0)
+		{
+			if (month == 2) {
+				if (d.IsLeapYear())
+					return 29;
+				else
+					return 28;
+			}
+			else if (month == 4 || month == 6 || month == 9 || month == 11)
+			{
+				return 30;
+			}
+			else
+			{
+				return 31;
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	static Date Now()
 	{
 		chrono::system_clock::time_point now = chrono::system_clock::now();
 		time_t currentTime = chrono::system_clock::to_time_t(now);
@@ -136,19 +182,8 @@ public:
 		int month = localTime.tm_mon; //localTime luu thang bat dau tu 0 den 11. tuong duong thang 1->12.
 		int day = localTime.tm_mday;
 
-		tm birthday = {};
-		birthday.tm_mday = Day;
-		birthday.tm_mon = Month - 1; //birthday.tm_mon phai tru 1 de dong bo voi cach tinh thang cua localTime.tm_year
-		birthday.tm_year = year;
+		Date result(day, month + 1, year + 1900);
 
-		time_t birthTime = mktime(&birthday);
-
-		if (difftime(birthTime, currentTime) < 0)
-		{
-			return -1;
-		}
-		double seconds = difftime(birthTime, currentTime);
-
-		return (int)(seconds / (60 * 60 * 24));
+		return result;
 	}
 };
