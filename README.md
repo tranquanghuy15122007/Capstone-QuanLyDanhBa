@@ -1,3 +1,4 @@
+//vô file update log.txt đọc ấy đọc ở đây khó nhìn 
 //đừng có lười nhé đọc hết t chuẩn bị kĩ lắm đấy ( nếu có câu hỏi sao t xóa cài này không làm cái kia thì đợi t ngủ dậy nhé mọi thứ đều có lý do)
 //vibe coding (nhưng t cố cho nó đi sát với bài học trên lớp rồi)
 //vốn dĩ full code thay đổi chỉ bởi vì cái đề bài yêu cầu load dữ liệu từ file cái quá đó mình chưa học thì cũng phải chịu thôi 
