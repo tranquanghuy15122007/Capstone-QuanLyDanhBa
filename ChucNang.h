@@ -4,6 +4,7 @@
 #include <string>
 #include "date.h"
 #include "quanlydanhba.h"
+#include "GetLastName.h"
 
 using namespace std;
 
@@ -12,9 +13,6 @@ class ChucNang : public QuanlyDanhba
 private:
     // Lưu nội dung các lần tìm kiếm theo tên và SĐT.
     vector<string> lichSuTimKiem;
-
-    // Lưu thời điểm tương ứng với từng lần tìm kiếm.
-    vector<time_t> thoiGianTimKiem;
 
     // Hàm phụ nội bộ để tính nhanh index (0-25) dựa vào tên chính
     int TinhIndex(const string& ten) const {
@@ -126,8 +124,6 @@ public:
         string keyword = findName;
         transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
         lichSuTimKiem.push_back("Ten: " + keyword);
-        thoiGianTimKiem.push_back(time(0));
-
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
             << " | " << setw(13) << "SDT"
@@ -140,7 +136,7 @@ public:
             vector<QuanlyDanhba*>& nhom = getvector(idx);
             for (const auto& nguoi : nhom) {
 
-                string name = nguoi->GetName();
+                string name = GetLastName(nguoi->GetName());
                 transform(name.begin(), name.end(), name.begin(), ::tolower);
 
                 transform(findName.begin(), findName.end(), findName.begin(), ::tolower);
@@ -168,8 +164,6 @@ public:
         getline(cin, findPhone);
         cout << endl;
         lichSuTimKiem.push_back("SDT: " + findPhone);
-        thoiGianTimKiem.push_back(time(0));
-
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
             << " | " << setw(13) << "SDT"
@@ -202,7 +196,7 @@ public:
     }
 
 
-    // 4.3 Hiển thị lịch sử tìm kiếm theo thời gian gần nhất.
+    // Hiển thị lịch sử tìm kiếm từ mới nhất đến cũ nhất.
     void HienThiLichSuTimKiem()
     {
         if (lichSuTimKiem.empty())
@@ -211,73 +205,43 @@ public:
             return;
         }
 
-        cout << "Lich su tim kiem"<<endl;
-
-        cout << "+" << string(6, '-')
-            << "+" << string(27, '-')
-            << "+" << string(22, '-') << "+\n";
-
-        cout << "| " << left << setw(4) << "STT"
-            << " | " << setw(25) << "Tu khoa tim kiem"
-            << " | " << setw(20) << "Thoi gian" << " |\n";
-
-        cout << "+" << string(6, '-')
-            << "+" << string(27, '-')
-            << "+" << string(22, '-') << "+\n";
-
-        int stt = 1;
+        cout << "+" << string(32, '-') << "+\n";
+        cout << "| " << left << setw(30) << "Lich su tim kiem" << " |\n";
+        cout << "+" << string(32, '-') << "+\n";
 
         for (int i = (int)lichSuTimKiem.size() - 1; i >= 0; i--)
         {
-            tm ngayGio = {};
-            localtime_s(&ngayGio, &thoiGianTimKiem[i]);
-
-            cout << "| " << left << setw(4) << stt
-                << " | " << setw(25) << lichSuTimKiem[i]
-                << " | " << put_time(&ngayGio, "%d/%m/%Y %H:%M:%S")
-                << " |\n";
-
-            stt++;
+            cout << "| " << left << setw(30) << lichSuTimKiem[i] << " |\n";
         }
-
-        cout << "+" << string(6, '-')
-            << "+" << string(27, '-')
-            << "+" << string(22, '-') << "+\n";
+        cout << "+" << string(32, '-') << "+\n";
     }
 
-
     //Hiển thị danh sách liên hệ lọc theo tên nhóm quan hệ
-    void LocTheoTenNhom()// hàm kh trả về giá trị
+    void LocTheoTenNhom()
     {
-        string findRelation;// tạo biến có tên find
+        string findRelation;
         cout << "Nhap ten nhom quan he can loc: ";
-        cin.ignore();//bỏ ký tự tiếp theo trong bộ đệm nhập
-        getline(cin, findRelation);// lấy cả khoảng trắng "ban hoc"
+        cin.ignore();
+        getline(cin, findRelation);
         cout << endl;
-        //in ra 26 cái - ngăn cách vởi 1 dấu +
+
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
-        cout << "| " << left << setw(24) << "Ten"// độ rộng tối thiểu
+        cout << "| " << left << setw(24) << "Ten"
             << " | " << setw(13) << "SDT"
             << " | " << setw(15) << "Quan He"
             << " | " << setw(15) << "Ngay Sinh"
             << " | " << setw(34) << "Ghi Chu" << " |\n";
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
-        for (int idx = 0; idx < 26; idx++) {//Để "nhom" sử dụng chính vector gốc, không tạo ra một bản sao của cả vector
-            vector<QuanlyDanhba*>& nhom = getvector(idx);//tham chiếu "nhom" đến vector, lấy getvector tương ứng
-            for (const auto& nguoi : nhom) {                 // ví dụ idx = 0 thì sẽ bàng A
-                //Lần lượt lấy từng phần tử của vector nhom, đặt tên là nguoi, rồi xử lý người đó
-                   //auto	Để C++ tự suy ra kiểu dữ liệu
-                   //const	Không cho sửa phần tử con trỏ thông qua tham chiếu này
-                   //:	Hiểu là “trong”
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = getvector(idx);
+            for (const auto& nguoi : nhom) {
+
                 string relationship = nguoi->GetRelationship();
-                //tạo 1 biến gắn con trỏ người vào
                 transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
-                //begin bắt đầu duyệt chuỗi đến end, begin t2 ghi lại chiuỗi và tolower chuyển sang ký tự thường
+
                 transform(findRelation.begin(), findRelation.end(), findRelation.begin(), ::tolower);
-                //"ban hoc".find("ban") != string::npos
-                //!= nghĩa là khác
-                //C++ sẽ tìm chuỗi "ban" trong "ban hoc"
+
                 if (relationship.find(findRelation) != string::npos)
                 {
                     cout << "| " << left << setw(24) << nguoi->GetName()
@@ -291,9 +255,7 @@ public:
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
     }
-    
-
-    
+        
     //Hiển thị danh sách liên hệ sắp sinh nhật trong năm
     void DanhSachSapSinhNhat()
     {
