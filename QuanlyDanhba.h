@@ -8,7 +8,6 @@
 #include <vector>
 #include <iomanip>
 #include "date.h"
-#include "hotro.h"
 
 using namespace std;
 

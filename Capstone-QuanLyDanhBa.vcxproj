@@ -140,7 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Date.h" />
-    <ClInclude Include="hotro.h" />
     <ClInclude Include="HotroHienthiCSVFILE.h" />
     <ClInclude Include="QuanlyDanhba.h" />
     <ClInclude Include="ChucNang.h" />
