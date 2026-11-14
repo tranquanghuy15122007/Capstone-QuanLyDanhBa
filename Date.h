@@ -59,12 +59,18 @@ public:
 	// Kiem tra Date hop le
 	bool IsValidDate() const
 	{
-		if (Month < 1 || Month > 12)
+		if (Month < 1 || Month > 12) {
+			cout << "Month phai >= 1 va <= 12" << endl;
 			return false;
-		if (Day < 1 || Day > LastDayOfMonth())
+		}
+		if (Day < 1 || Day > LastDayOfMonth()) {
+			cout << "so ngay khong hop le dua vao thang" << endl;
 			return false;
-		if (Year < 1)
+		}
+		if (Year < 1000 || Year > 9999) {
+			cout << "Year phai nhap 4 so" << endl;
 			return false;
+		}
 		return true;
 	}
 
@@ -83,13 +89,32 @@ public:
 		return (Day == 0 && Month == 0 && Year == 0);
 	}
 
-	void FromString(const string& str)
+	bool FromString(const string& str)
 	{
-		char slash;
 		stringstream ss(str);
+		char c1, c2;
+		int d, m, y;
 
-		ss >> Day >> slash >> Month >> slash >> Year;
+		if (!(ss >> d >> c1 >> m >> c2 >> y) || c1 != '/' || c2 != '/')
+		{
+			cout << "nhap cho dung ky tu va ngay thang nam (DD/MM/YYYY)";
+			return false;
+		}
+
+		ss >> ws;// bỏ qua khoảng trắng
+		if (!ss.eof())// dò những dòng đằng sau year nếu còn thừa chữ
+		{
+			cout << "khong chu cai hoac ky tu dang sau";
+			return false;
+		}
+
+		Day = d;
+		Month = m;
+		Year = y;
+
+		return true;
 	}
+
 
 
 	bool operator<(const Date& d)
