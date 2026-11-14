@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <iomanip>
+#include <limits>
 #include "date.h"
 #include "quanlydanhba.h"
 
@@ -66,7 +67,7 @@ public:
     bool KiemTraTrungTen(const string& tenMoi) const {
         string tMoi = ChuanHoa(tenMoi);
         for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = const_cast<QuanlyDanhba*>(this)->getvector(idx);
+            vector<QuanlyDanhba*>& nhom = const_cast<ChucNang*>(this)->getvector(idx);
             for (const auto& nguoi : nhom) {
                 if (ChuanHoa(nguoi->GetName()) == tMoi) return true;
             }
@@ -79,7 +80,7 @@ public:
         string tMoi = ChuanHoa(tenMoi);
         string sMoi = ChuanHoa(sdtMoi);
         for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = const_cast<QuanlyDanhba*>(this)->getvector(idx);
+            vector<QuanlyDanhba*>& nhom = const_cast<ChucNang*>(this)->getvector(idx);
             for (const auto& nguoi : nhom) {
                 if (nguoi != excludePtr && ChuanHoa(nguoi->GetName()) == tMoi && ChuanHoa(nguoi->GetPhone()) == sMoi) return true;
             }
@@ -89,6 +90,8 @@ public:
 
     // 1. Hàm Thêm (Nhập liệu trực tiếp và kiểm tra trùng SĐT/Tên ngay lập tức)
     void Them() {
+  
+
         while (true) {
             string name, phone, relationship, dateStr, note;
 
@@ -176,12 +179,13 @@ public:
         if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs")
         {
             bool daXoa = false;
+            // Dọn bộ đệm MỘT LẦN duy nhất trước khi vào vòng lặp nhập tên/SĐT
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             while (!daXoa)
             {
                 string tenCanXoa, sdtCanXoa;
                 cout << "Nhap ten can xoa: ";
-                cin.ignore();
                 getline(cin, tenCanXoa);
 
                 cout << "Nhap sdt can xoa: ";
@@ -231,11 +235,12 @@ public:
 
         if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs") {
             bool daSua = false;
+            // Dọn bộ đệm MỘT LẦN duy nhất trước khi vào vòng lặp nhập tên/SĐT cần sửa
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
             while (!daSua) {
                 string tenCanSua, sdtCanSua;
                 cout << "Nhap ten can sua: ";
-                cin.ignore();
                 getline(cin, tenCanSua);
 
                 cout << "Nhap sdt can sua: ";
@@ -351,7 +356,7 @@ public:
     {
         string findRelation;
         cout << "Nhap ten nhom quan he can loc: ";
-        cin.ignore();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         getline(cin, findRelation);
         cout << endl;
 
