@@ -4,10 +4,9 @@
 #include <string>
 #include <algorithm>
 #include <iomanip>
-#include <limits>
+#include <cctype>
 #include "date.h"
 #include "quanlydanhba.h"
-#include <cctype>// cho isdigit
 
 using namespace std;
 
@@ -21,11 +20,10 @@ protected:
         if (viTri != string::npos) {
             tenChinh = ten.substr(viTri + 1);
         }
-        if (tenChinh.empty())
-        {
+        if (tenChinh.empty()) {
             return 0;
         }
-            
+
         char c = tenChinh[0];
         int index = 0;
         if (c >= 'a' && c <= 'z') {
@@ -35,13 +33,6 @@ protected:
             index = c - 'A';
         }
         return index;
-    }
-    bool CoKyTuCoDau(const string& s) {
-        for (unsigned char c : s) {
-            if (c > 127)
-                return true;
-        }
-        return false;
     }
 
     bool SDTHopLe(const string& phone) {
@@ -56,10 +47,10 @@ protected:
         return true;
     }
 
+    // chi cho phep chu cai (khong dau) va khoang trang
     bool ChiChuaChuVaKhoangTrang(const string& s) {
         for (char c : s) {
-            if (!isalpha(static_cast<unsigned char>(c))
-                && c != ' ')
+            if (!isalpha(static_cast<unsigned char>(c)) && c != ' ')
                 return false;
         }
 
@@ -67,48 +58,17 @@ protected:
     }
 
     bool TenHopLe(const string& ten) {
-        if (ten.length() < 2)
-            return false;
-
-        if (CoKyTuCoDau(ten))
-            return false;
-
-        if (!ChiChuaChuVaKhoangTrang(ten))
-            return false;
-
-        size_t viTri = ten.rfind(' ');
-        string tenChinh = ten;
-
-        if (viTri != string::npos)
-            tenChinh = ten.substr(viTri + 1);
-
-        if (tenChinh.empty())
-            return false;
-
-        if (!isalpha(
-            static_cast<unsigned char>(tenChinh[0])))
-            return false;
-
-        return true;
+        return ten.length() >= 2 && ChiChuaChuVaKhoangTrang(ten);
     }
 
     bool QuanHeHopLe(const string& qh) {
-        if (qh.length() < 2)
-            return false;
-
-        if (CoKyTuCoDau(qh))
-            return false;
-
-        if (!ChiChuaChuVaKhoangTrang(qh))
-            return false;
-
-        return true;
+        return qh.length() >= 2 && ChiChuaChuVaKhoangTrang(qh);
     }
 
     bool GhiChuHopLe(const string& note) {
         return !note.empty();
     }
-    
+
 public:
     ChucNang(string _name = "", string _sdt = "", string _quanhe = "", Date _ngaysinh = Date(), string _ghichu = "")
         : QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
@@ -120,7 +80,7 @@ public:
         cout << "\nBan co muon hien bang danh ba khong? (yes/no): ";
         getline(cin, luachon);
 
-        while ( luachon != "yes" && luachon != "YES" && luachon != "Yes" && luachon != "YEs" &&
+        while (luachon != "yes" && luachon != "YES" && luachon != "Yes" && luachon != "YEs" &&
             luachon != "no" && luachon != "NO" && luachon != "No") {
             cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
             getline(cin, luachon);
@@ -145,9 +105,9 @@ public:
         }
     }
 
+    // xoa ky tu xuong dong o cuoi va khoang trang o hai dau
     string ChuanHoa(string s) {
-        while (!s.empty() &&
-            (s.back() == '\r' || s.back() == '\n')) {
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) {
             s.pop_back();
         }
 
@@ -162,38 +122,20 @@ public:
         return s.substr(dau, cuoi - dau + 1);
     }
 
-    // kiem tra trung ten  // bỏ qua ở đây là kiểu nếu khi sửa lúc sửa á chưa có cập nhật mà đổi tên nguyễn văn a thành nguyễn văn a thì nó vẫn sẽ báo trùng
-    // nên mới cần thêm tham số bỏ qua
-    bool KiemTraTrungTen(string tenMoi,
-        QuanlyDanhba* boQua = nullptr) {
-
+    // kiem tra trung ten
+    // boQua: bo qua nguoi dang sua, neu khong khi sua "nguyen van a" thanh "nguyen van a" van bi bao trung
+    bool KiemTraTrungTen(string tenMoi, QuanlyDanhba* boQua = nullptr) {
         string t = ChuanHoa(tenMoi);
-
-        transform(
-            t.begin(),
-            t.end(),
-            t.begin(),
-            ::tolower);
+        transform(t.begin(), t.end(), t.begin(), ::tolower);
 
         for (int i = 0; i < 26; i++) {
-
-            vector<QuanlyDanhba*>& nhom =
-                getvector(i);
+            vector<QuanlyDanhba*>& nhom = getvector(i);
 
             for (size_t j = 0; j < nhom.size(); j++) {
+                string tenCu = ChuanHoa(nhom[j]->GetName());
+                transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
 
-                string tenCu =
-                    ChuanHoa(
-                        nhom[j]->GetName());
-
-                transform(
-                    tenCu.begin(),
-                    tenCu.end(),
-                    tenCu.begin(),
-                    ::tolower);
-
-                if (nhom[j] != boQua
-                    && tenCu == t)
+                if (nhom[j] != boQua && tenCu == t)
                     return true;
             }
         }
@@ -227,7 +169,6 @@ public:
             getline(cin, name);
             name = ChuanHoa(name);
         }
-
 
         if (KiemTraTrungTen(name)) {
             cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)" << endl;
@@ -266,16 +207,13 @@ public:
             cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
             getline(cin, dateStr);
             dateStr = ChuanHoa(dateStr);
-
         }
 
         cout << "Nhap ghi chu: ";
         getline(cin, note);
         note = ChuanHoa(note);
-
         while (!GhiChuHopLe(note)) {
             cout << "Nhap lai ghi chu: ";
-
             getline(cin, note);
             note = ChuanHoa(note);
         }
@@ -294,7 +232,6 @@ public:
         getline(cin, sdt);
         sdt = ChuanHoa(sdt);
 
-        // kiem tra sdt: du 10 ky tu, bat dau bang 0, toan la chu so
         while (!SDTHopLe(sdt)) {
             cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
             getline(cin, sdt);
@@ -304,14 +241,12 @@ public:
         for (int i = 0; i < 26; i++) {
             for (size_t j = 0; j < getvector(i).size(); j++) {
                 if (ChuanHoa(getvector(i)[j]->GetPhone()) == sdt) {
-                    // in thong tin nguoi tim thay
                     cout << "---------------------------\n";
                     cout << "Tim thay: " << "\n";
                     cout << "Ho ten : " << getvector(i)[j]->GetName() << "\n";
                     cout << "SDT    : " << getvector(i)[j]->GetPhone() << "\n";
                     cout << "---------------------------\n";
 
-                    // hoi xac nhan
                     string xacNhan;
                     cout << "Ban co chac chan muon xoa nguoi nay khong? (yes/no): ";
                     getline(cin, xacNhan);
@@ -323,7 +258,7 @@ public:
                         xacNhan = ChuanHoa(xacNhan);
                     }
 
-                    if (xacNhan == "yes" || xacNhan == "YES" || xacNhan == "Yes") {
+                    if (xacNhan == "yes" || xacNhan == "YES" || xacNhan == "Yes" || xacNhan == "YEs") {
                         delete getvector(i)[j];
                         getvector(i).erase(getvector(i).begin() + j);
                         cout << "Xoa contact thanh cong!\n";
@@ -353,7 +288,6 @@ public:
             if (!SDTHopLe(sdt)) {
                 cout << "SDT khong hop le!\n";
             }
-
         } while (!SDTHopLe(sdt));
 
         // tim nguoi co sdt nay
@@ -385,7 +319,6 @@ public:
         cout << "SDT    : " << target->GetPhone() << "\n";
         cout << "---------------------------\n";
 
-        // hoi xac nhan
         string xacNhan;
         cout << "Ban co chac chan muon sua nguoi nay khong? (yes/no): ";
         getline(cin, xacNhan);
@@ -422,7 +355,6 @@ public:
         sdtMoi = ChuanHoa(sdtMoi);
 
         while (!SDTHopLe(sdtMoi) || KiemTraTrungSDT(sdtMoi, target)) {
-
             if (SDTHopLe(sdtMoi) && KiemTraTrungSDT(sdtMoi, target)) {
                 cout << "SDT da ton tai! Nhap lai: ";
             }
@@ -437,7 +369,6 @@ public:
         cout << "Nhap quan he moi: ";
         getline(cin, quanhe);
         quanhe = ChuanHoa(quanhe);
-
         while (!QuanHeHopLe(quanhe)) {
             cout << "Quan he khong hop le! Nhap lai: ";
             getline(cin, quanhe);
@@ -459,7 +390,6 @@ public:
         ghichu = ChuanHoa(ghichu);
         while (!GhiChuHopLe(ghichu)) {
             cout << "Nhap lai ghi chu: ";
-
             getline(cin, ghichu);
             ghichu = ChuanHoa(ghichu);
         }
@@ -536,9 +466,7 @@ public:
 
         // sap xep noi bot theo so ngay den sinh nhat tang dan
         for (size_t i = 0; i + 1 < danhsach.size(); i++) {
-            for (size_t j = 0; j + 1 < danhsach.size() - i; j++) 
-            {
-                
+            for (size_t j = 0; j + 1 < danhsach.size() - i; j++) {
                 int ngay1 = danhsach[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
                 int ngay2 = danhsach[j + 1]->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
                 if (ngay1 > ngay2) {
