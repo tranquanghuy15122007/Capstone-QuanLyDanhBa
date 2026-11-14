@@ -25,10 +25,7 @@ int main() {
     qlDanhBa.Display_DESC();
     cout << "\nChuong trinh chay hoan tat. Bo nho tren Heap se tu dong duoc giai phong!\n";
 
-
-    QuanlyDanhba* p = new QuanlyDanhba();
-    cin >> *p;
-    qlDanhBa.Them(p);
+    qlDanhBa.Them();
     qlDanhBa.Capnhatfilekhithem(tenFile);
     qlDanhBa.Hienthisapxep();
 

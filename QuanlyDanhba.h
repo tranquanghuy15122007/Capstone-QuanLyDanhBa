@@ -8,7 +8,7 @@
 #include <vector>
 #include <iomanip>
 #include "date.h"
-#include <limits>//cho getline
+#include <limits> // cho getline
 
 using namespace std;
 
@@ -17,7 +17,7 @@ class QuanlyDanhba
 private:
     string Name;
     string Phone;
-    string Relationship;//quanhe
+    string Relationship; // quanhe
     Date Birthday;
     string Note;
 
@@ -110,93 +110,8 @@ public:
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
     }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Hàm kiểm tra chỉ riêng Tên (để báo lưu ý)
-    bool KiemTraTrungTen(const string& tenMoi) {
-        for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
-                if (nguoi->GetName() == tenMoi) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    // Hàm kiểm tra trùng full cả Tên và SĐT (để chặn)
-    bool KiemTraTrungFull(const string& tenMoi, const string& sdtMoi) {
-        for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
-                if (nguoi->GetName() == tenMoi && nguoi->GetPhone() == sdtMoi) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 };
 
-
-istream& operator>>(istream& is, QuanlyDanhba& p) {
-
-    cout << "Nhap ho ten: ";
-    getline(is, p.Name);
-
-    // Thông báo cảnh báo ngay khi nhập xong tên (cho phép trùng tên nhưng lưu ý SĐT)
-    if (p.KiemTraTrungTen(p.Name)) {
-        cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)!\n";
-    }
-
-    while (p.Name.empty() || p.Name.length() < 3)
-    {
-        cout << "Nhap lai ho ten: ";
-        getline(is, p.Name);
-    }
-
-    cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
-    getline(is, p.Phone);
-
-    while (p.Phone.empty() || p.Phone.length() != 10 || p.Phone[0] != '0' || p.KiemTraTrungFull(p.Name, p.Phone))
-    {
-        if (p.KiemTraTrungFull(p.Name, p.Phone)) {
-            cout << "Ten va SDT bi trung trong danh sach! Nhap lai SDT khac: ";
-        }
-        else 
-        {
-            cout << "Nhap lai SDT (dung 10 so va bat dau bang 0): ";
-        }
-        getline(is, p.Phone); // Nhập SĐT
-    }
-
-    cout << "Nhap quan he: ";
-    getline(is, p.Relationship); // Nhập quan hệ đúng vào đây
-    while (p.Relationship.empty() || p.Relationship.length() < 2)
-    {
-        cout << "Nhap quan he: ";
-        getline(is, p.Relationship); // Nhập quan hệ đúng vào đây
-    }
-
-    cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-    string dateStr;
-    getline(is, dateStr);
-    p.Birthday.FromString(dateStr);
-
-    // Vòng lặp kiểm tra: Nếu trống, hoặc chuỗi không phân tích được, hoặc ngày không hợp lệ thì bắt nhập lại
-    while (p.Birthday.IsEmpty() || !p.Birthday.FromString(dateStr) || !p.Birthday.IsValidDate())
-    {
-        cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
-        getline(is, dateStr);
-        p.Birthday.FromString(dateStr); // <--- THIẾU DÒNG NÀY ĐÂY! Phải gọi lại để nó cập nhật giá trị mới
-    }
-
-    while (p.Note.empty())
-    {
-        cout << "Nhap ghi chu: ";
-        is.ignore();
-        getline(is, p.Note); // Nhập ghi chú (hoặc email) đúng vào đây
-    }
-    return is;
-}

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <iomanip>
 #include "date.h"
 #include "quanlydanhba.h"
 
@@ -31,6 +33,7 @@ public:
     ChucNang(string _name = "", string _sdt = "", string _quanhe = "", Date _ngaysinh = Date(), string _ghichu = "")
         : QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
     }
+
     // 4. Hàm hiển thị theo lựa chọn a-z hoặc z-a (có bắt lỗi nhập sai)
     void Hienthisapxep() {
         string arrange = "";
@@ -49,14 +52,113 @@ public:
             Display();
         }
     }
-    // 1. Hàm Thêm
-    void Them(QuanlyDanhba* p) {
-        int index = TinhIndex(p->GetName());
-        getvector(index).push_back(p);
+
+    // Hàm chuẩn hóa chuỗi dùng chung (xóa khoảng trắng thừa và ký tự ẩn)
+    string ChuanHoa(string s) const {
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) s.pop_back();
+        size_t start = s.find_first_not_of(" \t");
+        if (start == string::npos) return "";
+        size_t end = s.find_last_not_of(" \t");
+        return s.substr(start, end - start + 1);
     }
 
+    // Hàm kiểm tra riêng Tên
+    bool KiemTraTrungTen(const string& tenMoi) const {
+        string tMoi = ChuanHoa(tenMoi);
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = const_cast<QuanlyDanhba*>(this)->getvector(idx);
+            for (const auto& nguoi : nhom) {
+                if (ChuanHoa(nguoi->GetName()) == tMoi) return true;
+            }
+        }
+        return false;
+    }
 
-    // 2. Hàm Xóa (Bắt nhập lại nếu sai yes/no, lặp lại nếu không tìm thấy)
+    // Hàm kiểm tra trùng full (Tên + SĐT), hỗ trợ loại trừ con trỏ hiện tại khi Sửa
+    bool KiemTraTrungFull(const string& tenMoi, const string& sdtMoi, const QuanlyDanhba* excludePtr = nullptr) const {
+        string tMoi = ChuanHoa(tenMoi);
+        string sMoi = ChuanHoa(sdtMoi);
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = const_cast<QuanlyDanhba*>(this)->getvector(idx);
+            for (const auto& nguoi : nhom) {
+                if (nguoi != excludePtr && ChuanHoa(nguoi->GetName()) == tMoi && ChuanHoa(nguoi->GetPhone()) == sMoi) return true;
+            }
+        }
+        return false;
+    }
+
+    // 1. Hàm Thêm (Nhập liệu trực tiếp và kiểm tra trùng SĐT/Tên ngay lập tức)
+    void Them() {
+        while (true) {
+            string name, phone, relationship, dateStr, note;
+
+            // 1. Nhập Tên
+            cout << "Nhap ho ten: ";
+            getline(cin, name);
+
+            while (name.empty() || name.length() < 2) {
+                cout << "Nhap sai dinh dang ten (khong duoc de trong hoac co do dai chu < 2)!\n";
+                cout << "Nhap lai ho ten: ";
+                getline(cin, name);
+            }
+
+            // Cảnh báo nếu trùng tên
+            if (KiemTraTrungTen(name)) {
+                cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)!\n";
+            }
+
+            // 2. Nhập SĐT và CHẶN TRÙNG FULL NGAY LẬP TỨC
+            cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
+            getline(cin, phone);
+
+            while (phone.empty() || phone.length() != 10 || phone[0] != '0' || KiemTraTrungFull(name, phone)) {
+                if (KiemTraTrungFull(name, phone)) {
+                    cout << "Loi: Ten va SDT nay da ton tai trong danh sach! Vui long nhap lai SDT khac: ";
+                }
+                else {
+                    cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
+                }
+                getline(cin, phone);
+            }
+
+            // 3. Nhập Quan hệ
+            cout << "Nhap quan he: ";
+            getline(cin, relationship);
+            while (relationship.empty() || relationship.length() < 2) {
+                cout << "Nhap lai quan he (khong duoc de trong hoac < 2 ky tu): ";
+                getline(cin, relationship);
+            }
+
+            // 4. Nhập Ngày sinh
+            cout << "Nhap ngay sinh (dd/mm/yyyy): ";
+            getline(cin, dateStr);
+            Date d;
+            d.FromString(dateStr);
+
+            while (d.IsEmpty() || !d.FromString(dateStr) || !d.IsValidDate()) {
+                cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
+                getline(cin, dateStr);
+                d.FromString(dateStr);
+            }
+
+            // 5. Nhập Ghi chú
+            cout << "Nhap ghi chu: ";
+            getline(cin, note);
+            while (note.empty()) {
+                cout << "Nhap lai ghi chu: ";
+                getline(cin, note);
+            }
+
+            // Tạo đối tượng và đẩy vào vector a-z tương ứng
+            QuanlyDanhba* p = new QuanlyDanhba(name, phone, relationship, d, note);
+            int index = TinhIndex(p->GetName());
+            getvector(index).push_back(p);
+            cout << "Them contact vao danh ba thanh cong!\n";
+            break;
+        }
+    }
+
+    // 2. Hàm Xóa (Bắt nhập lại nếu sai yes/no, quét toàn bộ 26 vector, lặp lại nếu không tìm thấy)
     void Xoa() {
         string luachon;
 
@@ -64,17 +166,18 @@ public:
             cout << "Ban co muon xoa contact nao khong? (yes/no): ";
             cin >> luachon;
 
-            if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs" || luachon == "no" || luachon == "NO" || luachon == "No") {
+            if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs" ||
+                luachon == "no" || luachon == "NO" || luachon == "No") {
                 break;
             }
             cout << "Lua chon khong hop le! Vui long nhap lai.\n";
         }
 
-        if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs") 
+        if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs")
         {
             bool daXoa = false;
 
-            while (!daXoa) 
+            while (!daXoa)
             {
                 string tenCanXoa, sdtCanXoa;
                 cout << "Nhap ten can xoa: ";
@@ -82,19 +185,19 @@ public:
                 getline(cin, tenCanXoa);
 
                 cout << "Nhap sdt can xoa: ";
-                cin >> sdtCanXoa;
+                getline(cin, sdtCanXoa);
 
-                int index = TinhIndex(tenCanXoa);
-                vector<QuanlyDanhba*>& nhom = getvector(index);
-
-                for (auto it = nhom.begin(); it != nhom.end(); ) {
-                    if ((*it)->GetName() == tenCanXoa || (*it)->GetPhone() == sdtCanXoa) {
-                        delete* it;
-                        it = nhom.erase(it);
-                        daXoa = true;
-                    }
-                    else {
-                        ++it;
+                for (int idx = 0; idx < 26; idx++) {
+                    vector<QuanlyDanhba*>& nhom = getvector(idx);
+                    for (auto it = nhom.begin(); it != nhom.end(); ) {
+                        if (ChuanHoa((*it)->GetName()) == ChuanHoa(tenCanXoa) || ChuanHoa((*it)->GetPhone()) == ChuanHoa(sdtCanXoa)) {
+                            delete* it;
+                            it = nhom.erase(it);
+                            daXoa = true;
+                        }
+                        else {
+                            ++it;
+                        }
                     }
                 }
 
@@ -111,7 +214,7 @@ public:
         }
     }
 
-    // 3. Hàm Sửa (Viết y hệt form của hàm Xóa: hỏi yes/no, nhập tìm kiếm, không thấy thì lặp lại)
+    // 3. Hàm Sửa (Được làm chuẩn hóa, bắt lỗi định dạng và tự động chuyển đổi vector nếu đổi tên)
     void Sua() {
         string luachon;
 
@@ -119,7 +222,8 @@ public:
             cout << "Ban co muon sua contact nao khong? (yes/no): ";
             cin >> luachon;
 
-            if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs" || luachon == "no" || luachon == "NO" || luachon == "No") {
+            if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs" ||
+                luachon == "no" || luachon == "NO" || luachon == "No") {
                 break;
             }
             cout << "Lua chon khong hop le! Vui long nhap lai.\n";
@@ -135,49 +239,104 @@ public:
                 getline(cin, tenCanSua);
 
                 cout << "Nhap sdt can sua: ";
-                cin >> sdtCanSua;
+                getline(cin, sdtCanSua);
 
-                int index = TinhIndex(tenCanSua);
-                vector<QuanlyDanhba*>& nhom = getvector(index);
+                QuanlyDanhba* target = nullptr;
+                int oldIndex = -1;
 
-                for (auto& nguoi : nhom) {
-                    if (nguoi->GetName() == tenCanSua || nguoi->GetPhone() == sdtCanSua) {
-                        cout << "\nDa tim thay! Nhap thong tin moi:\n";
-
-                        string newName, newPhone, newRel, newNote, newDateStr;
-
-                        cout << "Nhap ho ten moi: ";
-                        cin.ignore();
-                        getline(cin, newName);
-                        nguoi->SetName(newName);
-
-                        cout << "Nhap SDT moi: ";
-                        cin >> newPhone;
-                        nguoi->SetPhone(newPhone);
-
-                        cout << "Nhap quan he moi: ";
-                        cin.ignore();
-                        getline(cin, newRel);
-                        nguoi->SetRelationship(newRel);
-
-                        cout << "Nhap ngay sinh moi (dd/mm/yyyy): ";
-                        cin >> newDateStr;
-                        Date d;
-                        d.FromString(newDateStr);
-                        nguoi->SetBirthday(d);
-
-                        cout << "Nhap ghi chu moi: ";
-                        cin.ignore();
-                        getline(cin, newNote);
-                        nguoi->SetNote(newNote);
-
-                        daSua = true;
-                        cout << "Sua thong tin contact thanh cong!\n";
-                        break;
+                // Tìm kiếm contact trong tất cả các vector
+                for (int idx = 0; idx < 26; idx++) {
+                    vector<QuanlyDanhba*>& nhom = getvector(idx);
+                    for (auto it = nhom.begin(); it != nhom.end(); ++it) {
+                        if (ChuanHoa((*it)->GetName()) == ChuanHoa(tenCanSua) || ChuanHoa((*it)->GetPhone()) == ChuanHoa(sdtCanSua)) {
+                            target = *it;
+                            oldIndex = idx;
+                            break;
+                        }
                     }
+                    if (target) break;
                 }
 
-                if (!daSua) {
+                if (target) {
+                    cout << "\nDa tim thay! Nhap thong tin moi:\n";
+
+                    string newName, newPhone, newRel, newNote, newDateStr;
+
+                    // 1. Nhập và kiểm tra Tên mới
+                    cout << "Nhap ho ten moi: ";
+                    getline(cin, newName);
+
+                    while (newName.empty() || newName.length() < 2) {
+                        cout << "Nhap sai dinh dang ten (khong duoc de trong hoac co do dai chu < 2)!\n";
+                        cout << "Nhap lai ho ten moi: ";
+                        getline(cin, newName);
+                    }
+
+                    if (KiemTraTrungTen(newName)) {
+                        cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)!\n";
+                    }
+
+                    // 2. Nhập và kiểm tra SĐT mới (Chặn trùng full, loại trừ chính target đang sửa)
+                    cout << "Nhap SDT moi (dung 10 so va bat dau bang 0): ";
+                    getline(cin, newPhone);
+
+                    while (newPhone.empty() || newPhone.length() != 10 || newPhone[0] != '0' || KiemTraTrungFull(newName, newPhone, target)) {
+                        if (KiemTraTrungFull(newName, newPhone, target)) {
+                            cout << "Ten va SDT bi trung trong danh sach! Nhap lai SDT khac: ";
+                        }
+                        else {
+                            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
+                        }
+                        getline(cin, newPhone);
+                    }
+
+                    // 3. Nhập Quan hệ mới
+                    cout << "Nhap quan he moi: ";
+                    getline(cin, newRel);
+                    while (newRel.empty() || newRel.length() < 2) {
+                        cout << "Nhap lai quan he moi: ";
+                        getline(cin, newRel);
+                    }
+
+                    // 4. Nhập Ngày sinh mới
+                    cout << "Nhap ngay sinh moi (dd/mm/yyyy): ";
+                    getline(cin, newDateStr);
+                    Date d;
+                    d.FromString(newDateStr);
+
+                    while (d.IsEmpty() || !d.FromString(newDateStr) || !d.IsValidDate()) {
+                        cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
+                        getline(cin, newDateStr);
+                        d.FromString(newDateStr);
+                    }
+
+                    // 5. Nhập Ghi chú mới
+                    cout << "Nhap ghi chu moi: ";
+                    getline(cin, newNote);
+                    while (newNote.empty()) {
+                        cout << "Nhap lai ghi chu moi: ";
+                        getline(cin, newNote);
+                    }
+
+                    // Cập nhật thông tin vào đối tượng
+                    target->SetName(newName);
+                    target->SetPhone(newPhone);
+                    target->SetRelationship(newRel);
+                    target->SetBirthday(d);
+                    target->SetNote(newNote);
+
+                    // Nếu đổi tên dẫn đến thay đổi nhóm (a-z), tiến hành di chuyển con trỏ sang vector mới
+                    int newIndex = TinhIndex(newName);
+                    if (newIndex != oldIndex) {
+                        vector<QuanlyDanhba*>& oldNhom = getvector(oldIndex);
+                        oldNhom.erase(remove(oldNhom.begin(), oldNhom.end(), target), oldNhom.end());
+                        getvector(newIndex).push_back(target);
+                    }
+
+                    daSua = true;
+                    cout << "Sua thong tin contact thanh cong!\n";
+                }
+                else {
                     cout << "Khong tim thay contact nao khop thong tin! Vui long nhap lai.\n";
                 }
             }
@@ -187,7 +346,7 @@ public:
         }
     }
 
-    //Hiển thị danh sách liên hệ lọc theo tên nhóm quan hệ
+    // Hiển thị danh sách liên hệ lọc theo tên nhóm quan hệ
     void LocTheoTenNhom()
     {
         string findRelation;
@@ -210,7 +369,6 @@ public:
 
                 string relationship = nguoi->GetRelationship();
                 transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
-
                 transform(findRelation.begin(), findRelation.end(), findRelation.begin(), ::tolower);
 
                 if (relationship.find(findRelation) != string::npos)
@@ -221,13 +379,12 @@ public:
                         << " | " << setw(15) << nguoi->GetBirthday().DateToString()
                         << " | " << setw(34) << nguoi->GetNote() << " |\n";
                 }
-
             }
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
     }
 
-    //Hiển thị danh sách liên hệ sắp sinh nhật trong năm
+    // Hiển thị danh sách liên hệ sắp sinh nhật trong năm
     void DanhSachSapSinhNhat()
     {
         vector<QuanlyDanhba*> danhsach;
@@ -244,7 +401,6 @@ public:
         sort(danhsach.begin(), danhsach.end(), [](const QuanlyDanhba* ng1, const QuanlyDanhba* ng2) {
             return ng1->GetBirthday().DemSoNgayDenSinhNhatTrongNam() < ng2->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
             });
-
 
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
