@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <sstream>
-#include <chrono>
+#include <string>
 #include <ctime>
 using namespace std;
 
@@ -12,49 +12,57 @@ private:
 	int Month;
 	int Year;
 
-	//Kiem tra nam nhuan
-	bool IsLeapYear() const
-	{
-		return (Year % 400 == 0) || (Year % 4 == 0 && Year % 100 != 0);
-	}
-
-	// Ngay cuoi cung cua thang
+	// ngay cuoi cung cua thang nay (dung lai ham static ben duoi)
 	int LastDayOfMonth() const
 	{
-		if (Month > 0 && Month <= 12 && Year > 0)
+		return GetCountDayOfMonth(Month, Year);
+	}
+
+	// dem xem ngay nay la ngay thu may trong nam (1/1 la ngay 1)
+	int NgayThuMayTrongNam(int day, int month, int year) const
+	{
+		int tong = day;
+		for (int i = 1; i < month; i++)
 		{
-			if (Month == 2) {
-				if (IsLeapYear())
-					return 29;
-				else
-					return 28;
-			}
-			else if (Month == 4 || Month == 6 || Month == 9 || Month == 11)
-			{
-				return 30;
-			}
-			else
-			{
-				return 31;
-			}
+			tong += GetCountDayOfMonth(i, year);
 		}
-		else
-		{
-			return 0;
-		}
+		return tong;
 	}
 
 public:
-	//Constructor
-	Date(int _day = 0, int _month = 0, int _year = 0) : Day(_day), Month(_month), Year(_year) {};
+	// Constructor
+	Date(int _day = 0, int _month = 0, int _year = 0) : Day(_day), Month(_month), Year(_year) {}
 
-	//destructor
-	~Date() {};
-
-	//Getters
+	// Getters
 	int GetDay() const { return Day; }
 	int GetMonth() const { return Month; }
 	int GetYear() const { return Year; }
+
+	// Kiem tra nam nhuan
+	static bool IsLeapYear(int year)
+	{
+		return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
+	}
+
+	// So ngay cua 1 thang (tra ve 0 neu thang hoac nam sai)
+	static int GetCountDayOfMonth(int month, int year)
+	{
+		if (month < 1 || month > 12 || year <= 0)
+		{
+			return 0;
+		}
+		if (month == 2)
+		{
+			if (IsLeapYear(year))
+				return 29;
+			return 28;
+		}
+		if (month == 4 || month == 6 || month == 9 || month == 11)
+		{
+			return 30;
+		}
+		return 31;
+	}
 
 	// Kiem tra Date hop le
 	bool IsValidDate() const
@@ -77,7 +85,7 @@ public:
 	// Xuat Date dinh dang day/month/year
 	void Print() const
 	{
-		cout << Day << "/" << Month << "/" << Year;
+		cout << DateToString();
 	}
 
 	string DateToString() const
@@ -85,7 +93,8 @@ public:
 		return to_string(Day) + "/" + to_string(Month) + "/" + to_string(Year);
 	}
 
-	bool IsEmpty() const {
+	bool IsEmpty() const
+	{
 		return (Day == 0 && Month == 0 && Year == 0);
 	}
 
@@ -94,121 +103,58 @@ public:
 		stringstream ss(str);
 		char c1, c2;
 		int d, m, y;
-
 		if (!(ss >> d >> c1 >> m >> c2 >> y) || c1 != '/' || c2 != '/')
 		{
-			cout << "nhap cho dung ky tu va ngay thang nam (DD/MM/YYYY)";
 			return false;
 		}
 
-		ss >> ws;// bỏ qua khoảng trắng
-		if (!ss.eof())// dò những dòng đằng sau year nếu còn thừa chữ
+		ss >> ws; // bo qua khoang trang
+		if (!ss.eof()) // con chu thua phia sau year
 		{
-			cout << "khong chu cai hoac ky tu dang sau";
+			cout << "khong chu cai hoac ky tu dang sau" << endl;
 			return false;
 		}
 
 		Day = d;
 		Month = m;
 		Year = y;
-
 		return true;
 	}
 
-
-
-	bool operator<(const Date& d)
+	bool operator<(const Date& d) const
 	{
-		if (Year < d.Year)
-			return true;
-		else
-		{
-			if (Year == d.Year)
-			{
-				if (Month < d.Month)
-					return true;
-				else
-				{
-					if (Month == d.Month) {
-						if (Day < d.Day)
-							return true;
-					}
-				}
-			}
-		}
-		return false;
+		if (Year != d.Year)
+			return Year < d.Year;
+		if (Month != d.Month)
+			return Month < d.Month;
+		return Day < d.Day;
 	}
 
-	bool operator==(const Date& d)
+	bool operator==(const Date& d) const
 	{
 		return Year == d.Year && Month == d.Month && Day == d.Day;
 	}
 
-	bool operator>(const Date& d)
+	bool operator>(const Date& d) const
 	{
-		return !(*this < d) && !(*this == d);
+		return d < *this;
 	}
 
+	// So ngay tu hom nay den sinh nhat nam nay (am nghia la da qua sinh nhat)
 	int DemSoNgayDenSinhNhatTrongNam() const
 	{
 		Date now = Date::Now();
-		int TongSoNgayHienTaiDenHetNam = 0;
-		for (int i = now.GetMonth(); i <= 12; i++)
-		{
-			TongSoNgayHienTaiDenHetNam += Date::GetCountDayOfMonth(i, now.GetYear());
-		}
-		TongSoNgayHienTaiDenHetNam -= now.GetDay();
-
-		int TongSoNgay = 0;
-		for (int i = Month; i <= 12; i++)
-		{
-			TongSoNgay += Date::GetCountDayOfMonth(i, Year);
-		}
-		TongSoNgay -= Day;
-
-		return TongSoNgayHienTaiDenHetNam - TongSoNgay;
+		int ngayHomNay = NgayThuMayTrongNam(now.Day, now.Month, now.Year);
+		int ngaySinhNhat = NgayThuMayTrongNam(Day, Month, now.Year); // dung nam hien tai
+		return ngaySinhNhat - ngayHomNay;
 	}
 
-	static int GetCountDayOfMonth(int month, int year)
-	{
-		Date d(1, month, year);
-		if (month > 0 && month <= 12 && year > 0)
-		{
-			if (month == 2) {
-				if (d.IsLeapYear())
-					return 29;
-				else
-					return 28;
-			}
-			else if (month == 4 || month == 6 || month == 9 || month == 11)
-			{
-				return 30;
-			}
-			else
-			{
-				return 31;
-			}
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
+	// Lay ngay hien tai
 	static Date Now()
 	{
-		chrono::system_clock::time_point now = chrono::system_clock::now();
-		time_t currentTime = chrono::system_clock::to_time_t(now);
-
+		time_t t = time(0);
 		tm localTime;
-		localtime_s(&localTime, &currentTime);
-
-		int year = localTime.tm_year; //localTime.tm_year ket qua tinh tu nam 1900 tro di. vi du nhu 2026 thi ket qua cua localTime.tm_year la 126.
-		int month = localTime.tm_mon; //localTime luu thang bat dau tu 0 den 11. tuong duong thang 1->12.
-		int day = localTime.tm_mday;
-
-		Date result(day, month + 1, year + 1900);
-
-		return result;
+		localtime_s(&localTime, &t); // tm_year tinh tu 1900, tm_mon tu 0 den 11
+		return Date(localTime.tm_mday, localTime.tm_mon + 1, localTime.tm_year + 1900);
 	}
 };
