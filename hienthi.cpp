@@ -26,7 +26,7 @@ int main() {
     cout << "\nChuong trinh chay hoan tat. Bo nho tren Heap se tu dong duoc giai phong!\n";
 
 
-    QuanlyDanhba* p = new QuanlyDanhba();
+   /* QuanlyDanhba* p = new QuanlyDanhba();
     cin >> *p;
     qlDanhBa.Them(p);
     qlDanhBa.Capnhatfilekhithem(tenFile);
@@ -38,10 +38,12 @@ int main() {
 
     qlDanhBa.Sua();
     qlDanhBa.Capnhatfilekhithem(tenFile);
-    qlDanhBa.Hienthisapxep();
+    qlDanhBa.Hienthisapxep();*/
 
+    qlDanhBa.TimTheoTen();
+    qlDanhBa.TimTheoSDT();
     qlDanhBa.LocTheoTenNhom();
-    qlDanhBa.DanhSachSapSinhNhat();
+    /*qlDanhBa.DanhSachSapSinhNhat();*/
 
     return 0;
 }
