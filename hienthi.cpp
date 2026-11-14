@@ -42,7 +42,8 @@ int main() {
 
     qlDanhBa.TimTheoTen();
     qlDanhBa.TimTheoSDT();
-    qlDanhBa.LocTheoTenNhom();
+    //qlDanhBa.LocTheoTenNhom();
+    qlDanhBa.HienThiLichSuTimKiem();
     /*qlDanhBa.DanhSachSapSinhNhat();*/
 
     return 0;

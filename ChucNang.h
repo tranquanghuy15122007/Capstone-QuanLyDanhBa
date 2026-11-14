@@ -10,6 +10,12 @@ using namespace std;
 class ChucNang : public QuanlyDanhba
 {
 private:
+    // Lưu nội dung các lần tìm kiếm theo tên và SĐT.
+    vector<string> lichSuTimKiem;
+
+    // Lưu thời điểm tương ứng với từng lần tìm kiếm.
+    vector<time_t> thoiGianTimKiem;
+
     // Hàm phụ nội bộ để tính nhanh index (0-25) dựa vào tên chính
     int TinhIndex(const string& ten) const {
         size_t last_space = ten.rfind(' ');
@@ -114,9 +120,21 @@ public:
     {
         string findName;
         cout << "Nhap ten lien he can tim: ";
-        cin.ignore();
+        //cin.ignore(); nếu dùng khi tìm kiếm 4.3 sẽ bị mất ký tự đầu
         getline(cin, findName);
         cout << endl;
+
+        // Tạo bản sao từ khóa để lưu lịch sử.
+        string keyword = findName;
+
+        // Chuyển từ khóa về chữ thường.
+        transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
+
+        // Lưu lịch sử tìm kiếm theo tên.
+        lichSuTimKiem.push_back("Ten: " + keyword);
+
+        // Lưu thời điểm tìm kiếm.
+        thoiGianTimKiem.push_back(time(0));
 
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
@@ -155,9 +173,15 @@ public:
     {
         string findPhone;
         cout << "Nhap so dien thoai can tim: ";
-        cin.ignore();
+        //cin.ignore(); nếu dùng khi tìm kiếm 4.3 sẽ bị mất ký tự đầu
         getline(cin, findPhone);
         cout << endl;
+
+        // Lưu từ khóa tìm kiếm theo SĐT.
+        lichSuTimKiem.push_back("SDT: " + findPhone);
+
+        // Lưu thời điểm tìm kiếm.
+        thoiGianTimKiem.push_back(time(0));
 
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
@@ -188,6 +212,51 @@ public:
             }
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
+
+
+    // 4.3 Hiển thị lịch sử tìm kiếm theo thời gian gần nhất.
+    void HienThiLichSuTimKiem()
+    {
+        if (lichSuTimKiem.empty())
+        {
+            cout << "Chua co lich su tim kiem!\n";
+            return;
+        }
+
+        cout << "Lich su tim kiem"<<endl;
+
+        cout << "+" << string(6, '-')
+            << "+" << string(27, '-')
+            << "+" << string(22, '-') << "+\n";
+
+        cout << "| " << left << setw(4) << "STT"
+            << " | " << setw(25) << "Tu khoa tim kiem"
+            << " | " << setw(20) << "Thoi gian" << " |\n";
+
+        cout << "+" << string(6, '-')
+            << "+" << string(27, '-')
+            << "+" << string(22, '-') << "+\n";
+
+        int stt = 1;
+
+        for (int i = (int)lichSuTimKiem.size() - 1; i >= 0; i--)
+        {
+            // Chuyển thời điểm tìm kiếm sang ngày giờ.
+            tm ngayGio = {};
+            localtime_s(&ngayGio, &thoiGianTimKiem[i]);
+
+            cout << "| " << left << setw(4) << stt
+                << " | " << setw(25) << lichSuTimKiem[i]
+                << " | " << put_time(&ngayGio, "%d/%m/%Y %H:%M:%S")
+                << " |\n";
+
+            stt++;
+        }
+
+        cout << "+" << string(6, '-')
+            << "+" << string(27, '-')
+            << "+" << string(22, '-') << "+\n";
     }
 
 
