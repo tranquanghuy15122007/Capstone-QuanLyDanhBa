@@ -213,7 +213,72 @@ public:
         {
             cout << "| " << left << setw(30) << lichSuTimKiem[i] << " |\n";
         }
+               
         cout << "+" << string(32, '-') << "+\n";
+    }
+
+    // 4.3.1 Hiển thị từ khóa theo số lần tìm kiếm nhiều nhất
+    void SapXepTimKiemNhieuNhat()
+    {
+        if (lichSuTimKiem.empty())
+        {
+            cout << "Chua co lich su tim kiem!\n";
+            return;
+        }
+        vector<string> tuKhoa;
+        vector<int> soLan;
+
+        for (int i = 0; i < (int)lichSuTimKiem.size(); i++)
+        {
+            bool daCo = false;
+            for (int j = 0; j < (int)tuKhoa.size(); j++)
+            {
+                if (lichSuTimKiem[i] == tuKhoa[j])
+                {
+                    daCo = true;
+                    break;
+                }
+            }
+            if (daCo == false)
+            {
+                tuKhoa.push_back(lichSuTimKiem[i]);
+
+                int dem = count(lichSuTimKiem.begin(),
+                    lichSuTimKiem.end(), lichSuTimKiem[i]);
+
+                soLan.push_back(dem);
+            }
+        }
+
+        for (int i = 0; i < (int)soLan.size(); i++)
+        {
+            for (int j = i + 1; j < (int)soLan.size(); j++)
+            {
+                if (soLan[i] < soLan[j])
+                {
+                    int temp = soLan[i];
+                    soLan[i] = soLan[j];
+                    soLan[j] = temp;
+
+                    string tempName = tuKhoa[i];
+                    tuKhoa[i] = tuKhoa[j];
+                    tuKhoa[j] = tempName;
+                }
+            }
+        }
+
+        cout << "+" << string(36, '-') << "+" << string(12, '-') << "+\n";
+        cout << "| " << left << setw(34) << "Tu khoa tim kiem"
+            << " | " << setw(10) << "So lan" << " |\n";
+        cout << "+" << string(36, '-') << "+" << string(12, '-') << "+\n";
+
+        for (int i = 0; i < (int)tuKhoa.size(); i++)
+        {
+            cout << "| " << left << setw(34) << tuKhoa[i]
+                << " | " << setw(10) << soLan[i] << " |\n";
+        }
+
+        cout << "+" << string(36, '-') << "+" << string(12, '-') << "+\n";
     }
 
     //Hiển thị danh sách liên hệ lọc theo tên nhóm quan hệ
