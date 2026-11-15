@@ -430,10 +430,12 @@ public:
                 transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
 
                 if (relationship.find(findRelation) != string::npos) {
+                    Date dBirth = nhom[j]->GetBirthday();
+                    string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                     cout << "| " << left << setw(24) << nhom[j]->GetName()
                         << " | " << setw(13) << nhom[j]->GetPhone()
                         << " | " << setw(15) << nhom[j]->GetRelationship()
-                        << " | " << setw(15) << nhom[j]->GetBirthday().DateToString()
+                        << " | " << setw(15) << strBirth
                         << " | " << setw(34) << nhom[j]->GetNote() << " |\n";
                 }
             }
@@ -448,7 +450,7 @@ public:
         for (int i = 0; i < 26; i++) {
             vector<QuanlyDanhba*>& nhom = getvector(i);
             for (size_t j = 0; j < nhom.size(); j++) {
-                if (nhom[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0) {
+                if (nhom[j]->GetBirthday().IsValidDateNoWarning() && nhom[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0) {
                     danhsach.push_back(nhom[j]);
                 }
             }

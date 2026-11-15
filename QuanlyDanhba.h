@@ -67,10 +67,12 @@ public:
 
         for (int i = 0; i < 26; i++) {
             for (int j = 0; j < static_cast<int>(mangDanhBa[i].size()); j++) {
+                Date dBirth = mangDanhBa[i][j]->GetBirthday();
+                string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                 cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
                     << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
                     << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()
-                    << " | " << setw(15) << mangDanhBa[i][j]->GetBirthday().DateToString()
+                    << " | " << setw(15) << strBirth
                     << " | " << setw(34) << mangDanhBa[i][j]->GetNote() << " |\n";
             }
         }
@@ -88,11 +90,13 @@ public:
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
         for (int i = 25; i >= 0; i--) {
-            for (int j = (int)mangDanhBa[i].size() - 1; j >= 0; j--) {
+            for (int j = static_cast<int>(mangDanhBa[i].size()) - 1; j >= 0; j--) {
+                Date dBirth = mangDanhBa[i][j]->GetBirthday();
+                string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                 cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
                     << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
                     << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()
-                    << " | " << setw(15) << mangDanhBa[i][j]->GetBirthday().DateToString()
+                    << " | " << setw(15) << strBirth
                     << " | " << setw(34) << mangDanhBa[i][j]->GetNote() << " |\n";
             }
         }

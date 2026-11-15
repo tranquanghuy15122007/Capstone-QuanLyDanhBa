@@ -44,7 +44,12 @@ public:
                 ghichu = ChuanHoa(ghichu);
 
                 Date ngaysinh;
-                ngaysinh.FromString(ngaysinhStr);
+                if (ngaysinhStr.empty() || !ngaysinh.FromString(ngaysinhStr))
+                {
+                    ngaysinh.SetDay(0);
+                    ngaysinh.SetMonth(0);
+                    ngaysinh.SetYear(0);
+                }
 
                 // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
                 QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
@@ -67,10 +72,12 @@ public:
         for (int i = 0; i < 26; i++) {
             vector<QuanlyDanhba*>& nhom = getvector(i);
             for (int j = 0; j < static_cast<int>(nhom.size()); j++) {
+                Date dBirth = nhom[j]->GetBirthday();
+                string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                 file << nhom[j]->GetName() << ","
                     << nhom[j]->GetPhone() << ","
                     << nhom[j]->GetRelationship() << ","
-                    << nhom[j]->GetBirthday().DateToString() << ","
+                    << strBirth << ","
                     << nhom[j]->GetNote() << "\n";
             }
         }
