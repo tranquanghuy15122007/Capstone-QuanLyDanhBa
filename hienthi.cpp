@@ -57,12 +57,12 @@ int main()
         case 3:
             break;
         case 4:
-            qlDanhBa.Sua();
-            qlDanhBa.Capnhatfilekhithem(tenFile);
+            if(qlDanhBa.Sua())
+                qlDanhBa.Capnhatfilekhithem(tenFile);
             break;
         case 5:
-            qlDanhBa.Xoa();
-            qlDanhBa.Capnhatfilekhithem(tenFile);
+            if(qlDanhBa.Xoa())
+                qlDanhBa.Capnhatfilekhithem(tenFile);
             break;
         case 6:
             qlDanhBa.LocTheoTenNhom();
