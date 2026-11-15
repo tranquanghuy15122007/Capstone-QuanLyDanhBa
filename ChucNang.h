@@ -233,66 +233,209 @@ public:
 
     // 2. Xoa contact theo ten + sdt: tra ve true neu da xoa, false neu khong xoa
     bool Xoa() {
-        string ten, sdt;
+        int luachon;
+        cout << endl;
+        cout << string(50, '=') << endl;
+        cout << "| " << setw(16) << " " << " XOA LIEN LAC " << setw(16) << " " << " |" << endl;;
+        cout << string(50, '=') << endl;
+        cout << "[1]. Xoa theo ten:" << endl;
+        cout << "[2]. Xoa theo SDT:" << endl;
+        cout << "[0]. Quit" << endl;
+        cout << string(50, '=') << endl;
+        cout << "Lua chon cua ban: ";
+        cin >> luachon;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        cout << "Nhap ho ten can xoa: ";
-        ten = DocDong();
-        while (!TenHopLe(ten)) {
-            cout << "Ten khong hop le! Nhap lai: ";
-            ten = DocDong();
-        }
+        string find_name;
+        string find_phone;
+        string find_name_tmp;
 
-        cout << "Nhap SDT can xoa (dung 10 so va bat dau bang 0): ";
-        sdt = DocDong();
-        while (!SDTHopLe(sdt)) {
-            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
-            sdt = DocDong();
-        }
+        vector<QuanlyDanhba*> danhsach; //danh sach phone tim duoc sau khi nhap ten/sdt can tim.
 
-        string tenTim = ten;
-        transform(tenTim.begin(), tenTim.end(), tenTim.begin(), ::tolower);
+        switch (luachon)
+        {
+        case 1:
+            cout << "Nhap ten can xoa: ";
+            find_name = DocDong();
 
-        // dua vao chu cai dau cua ten chinh (tu cuoi cung) de biet nam o vector nao
-        int index = TinhIndex(ten);
-        vector<QuanlyDanhba*>& nhom = getvector(index);
+            find_name_tmp = find_name;
+            transform(find_name.begin(), find_name.end(), find_name.begin(), ::tolower);
+            
+            for (int i = 0; i < 26; i++) {
+                vector<QuanlyDanhba*>& nhom = getvector(i);
 
-        for (size_t j = 0; j < nhom.size(); j++) {
-            string tenCu = ChuanHoa(nhom[j]->GetName());
-            transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
+                for (size_t j = 0; j < nhom.size(); j++) {
+                    string name = ChuanHoa(nhom[j]->GetName());
+                    transform(name.begin(), name.end(), name.begin(), ::tolower);
 
-            // so sanh ten tu phai sang trai, chi den dau cach
-            // vd nhap "huy" hoac "quang huy" deu khop "Tran Quang Huy"
-            bool khopTen = false;
-            if (tenCu.length() >= tenTim.length()) {
-                size_t viTri = tenCu.length() - tenTim.length();
-                if (tenCu.compare(viTri, tenTim.length(), tenTim) == 0 &&
-                    (viTri == 0 || tenCu[viTri - 1] == ' ')) {
-                    khopTen = true;
+                    if (name.find(find_name) != string::npos)
+                    {
+                        danhsach.push_back(nhom[j]);
+                    }
                 }
             }
 
-            if (khopTen && ChuanHoa(nhom[j]->GetPhone()) == sdt) {
-                cout << "---------------------------\n";
-                cout << "Tim thay: " << "\n";
-                cout << "Ho ten : " << nhom[j]->GetName() << "\n";
-                cout << "SDT    : " << nhom[j]->GetPhone() << "\n";
-                cout << "---------------------------\n";
+            if (static_cast<int>(danhsach.size()) > 0)
+            {
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+                cout << "| " << left << setw(10) << "STT"
+                    << " | " << setw(24) << "Ten"
+                    << " | " << setw(13) << "SDT"
+                    << " | " << setw(15) << "Quan He"
+                    << " | " << setw(15) << "Ngay Sinh"
+                    << " | " << setw(34) << "Ghi Chu" << " |\n";
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
-                if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
-                    delete nhom[j];
-                    nhom.erase(nhom.begin() + j);
-                    cout << "Xoa contact thanh cong!\n";
-                    Hienthisapxep();
-                    return true;
+                for (size_t i = 0; i < danhsach.size(); i++) {
+                    cout << "| " << left << setw(10) << (i + 1)
+                        << " | " << setw(24) << danhsach[i]->GetName()
+                        << " | " << setw(13) << danhsach[i]->GetPhone()
+                        << " | " << setw(15) << danhsach[i]->GetRelationship()
+                        << " | " << setw(15) << danhsach[i]->GetBirthday().DateToString()
+                        << " | " << setw(34) << danhsach[i]->GetNote() << " |\n";
                 }
-                else {
-                    cout << "Da huy thao tac xoa.\n";
-                    return false;
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+                int luachon_stt;
+                cout << "Nhap stt cua ten can xoa. Nhap 0 de thoat: ";
+                cin >> luachon_stt;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                while (luachon_stt < 0 || luachon_stt > static_cast<int>(danhsach.size()))
+                {
+                    cout << "STT Nhap khong ton tai. Hoac nhap 0 de thoat: ";
+                    cin >> luachon_stt;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+
+                if (luachon_stt == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    QuanlyDanhba* it_xoa = danhsach[luachon_stt - 1];
+                    for (int i = 0; i < 26; i++)
+                    {
+                        vector<QuanlyDanhba*>& nhom = getvector(i);
+
+                        for (size_t j = 0; j < nhom.size(); j++)
+                        {
+                            if (ChuanHoa(nhom[j]->GetPhone()) == ChuanHoa(it_xoa->GetPhone()))
+                            {
+                                if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
+                                    delete nhom[j];
+                                    nhom.erase(nhom.begin() + j);
+                                    cout << "Xoa contact thanh cong!\n";
+                                    return true;
+                                }
+                                else {
+                                    cout << "Da huy thao tac xoa.\n";
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    delete it_xoa;
                 }
             }
-        }
+            else
+            {
+                cout << "Khong tim thay nguoi nao co ten " << find_name_tmp << " trong danh sach!\n";
+            }            
 
-        cout << "Khong tim thay nguoi nao co ten va SDT nay trong danh sach!\n";
+            break;
+        case 2:
+            cout << "Nhap SDT can xoa: ";
+            find_phone = DocDong();
+
+            for (int i = 0; i < 26; i++) {
+                vector<QuanlyDanhba*>& nhom = getvector(i);
+
+                for (size_t j = 0; j < nhom.size(); j++) {
+                    string phone = ChuanHoa(nhom[j]->GetPhone());
+
+                    if (phone.find(find_phone) != string::npos)
+                    {
+                        danhsach.push_back(nhom[j]);
+                    }
+                }
+            }
+
+            if (static_cast<int>(danhsach.size()) > 0)
+            {
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+                cout << "| " << left << setw(10) << "STT"
+                    << " | " << setw(24) << "Ten"
+                    << " | " << setw(13) << "SDT"
+                    << " | " << setw(15) << "Quan He"
+                    << " | " << setw(15) << "Ngay Sinh"
+                    << " | " << setw(34) << "Ghi Chu" << " |\n";
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+                for (size_t i = 0; i < danhsach.size(); i++) {
+                    cout << "| " << left << setw(10) << (i + 1)
+                        << " | " << setw(24) << danhsach[i]->GetName()
+                        << " | " << setw(13) << danhsach[i]->GetPhone()
+                        << " | " << setw(15) << danhsach[i]->GetRelationship()
+                        << " | " << setw(15) << danhsach[i]->GetBirthday().DateToString()
+                        << " | " << setw(34) << danhsach[i]->GetNote() << " |\n";
+                }
+                cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+                int luachon_stt;
+                cout << "Nhap stt cua sdt can xoa. Nhap 0 de thoat: ";
+                cin >> luachon_stt;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                while (luachon_stt < 0 || luachon_stt > static_cast<int>(danhsach.size()))
+                {
+                    cout << "STT Nhap khong ton tai. Hoac nhap 0 de thoat: ";
+                    cin >> luachon_stt;
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+
+                if (luachon_stt == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    QuanlyDanhba* it_xoa = danhsach[luachon_stt - 1];
+                    for (int i = 0; i < 26; i++)
+                    {
+                        vector<QuanlyDanhba*>& nhom = getvector(i);
+
+                        for (size_t j = 0; j < nhom.size(); j++)
+                        {
+                            if (ChuanHoa(nhom[j]->GetPhone()) == ChuanHoa(it_xoa->GetPhone()))
+                            {
+                                if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
+                                    delete nhom[j];
+                                    nhom.erase(nhom.begin() + j);
+                                    cout << "Xoa contact thanh cong!\n";
+                                    return true;
+                                }
+                                else {
+                                    cout << "Da huy thao tac xoa.\n";
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                    delete it_xoa;
+                }
+            }
+            else
+            {
+                cout << "Khong tim thay nguoi nao co sdt " << find_phone << " trong danh sach!\n";
+            }
+
+            break;
+        case 0:
+            break;
+        default:
+            break;
+        };
+
         return false;
     }
 
