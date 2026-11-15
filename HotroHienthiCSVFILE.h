@@ -34,19 +34,22 @@ public:
             getline(ss, ngaysinhStr, ',');
             getline(ss, ghichu);
 
-            // xoa khoang trang thua va ky tu \r
-            ten = ChuanHoa(ten);
-            sdt = ChuanHoa(sdt);
-            quanhe = ChuanHoa(quanhe);
-            ngaysinhStr = ChuanHoa(ngaysinhStr);
-            ghichu = ChuanHoa(ghichu);
+            if (!KiemTraTrungSDT(sdt)) //Kiem tra co trung SDT nao trong danh ba hien co khong? Neu ton tai thi bo qua thong tin lien lac dang doc.
+            {
+                // xoa khoang trang thua va ky tu \r
+                ten = ChuanHoa(ten);
+                sdt = ChuanHoa(sdt);
+                quanhe = ChuanHoa(quanhe);
+                ngaysinhStr = ChuanHoa(ngaysinhStr);
+                ghichu = ChuanHoa(ghichu);
 
-            Date ngaysinh;
-            ngaysinh.FromString(ngaysinhStr);
+                Date ngaysinh;
+                ngaysinh.FromString(ngaysinhStr);
 
-            // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
-            QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
-            getvector(TinhIndex(ten)).push_back(newItem);
+                // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
+                QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
+                getvector(TinhIndex(ten)).push_back(newItem);
+            }
         }
 
         file.close();
