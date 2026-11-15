@@ -252,30 +252,42 @@ public:
         string tenTim = ten;
         transform(tenTim.begin(), tenTim.end(), tenTim.begin(), ::tolower);
 
-        // tim nguoi khop ca ten va sdt
-        for (int i = 0; i < 26; i++) {
-            for (size_t j = 0; j < getvector(i).size(); j++) {
-                string tenCu = ChuanHoa(getvector(i)[j]->GetName());
-                transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
+        // dua vao chu cai dau cua ten chinh (tu cuoi cung) de biet nam o vector nao
+        int index = TinhIndex(ten);
+        vector<QuanlyDanhba*>& nhom = getvector(index);
 
-                if (tenCu == tenTim && ChuanHoa(getvector(i)[j]->GetPhone()) == sdt) {
-                    cout << "---------------------------\n";
-                    cout << "Tim thay: " << "\n";
-                    cout << "Ho ten : " << getvector(i)[j]->GetName() << "\n";
-                    cout << "SDT    : " << getvector(i)[j]->GetPhone() << "\n";
-                    cout << "---------------------------\n";
+        for (size_t j = 0; j < nhom.size(); j++) {
+            string tenCu = ChuanHoa(nhom[j]->GetName());
+            transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
 
-                    if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
-                        delete getvector(i)[j];
-                        getvector(i).erase(getvector(i).begin() + j);
-                        cout << "Xoa contact thanh cong!\n";
-                        Hienthisapxep();
-                        return true;
-                    }
-                    else {
-                        cout << "Da huy thao tac xoa.\n";
-                        return false;
-                    }
+            // so sanh ten tu phai sang trai, chi den dau cach
+            // vd nhap "huy" hoac "quang huy" deu khop "Tran Quang Huy"
+            bool khopTen = false;
+            if (tenCu.length() >= tenTim.length()) {
+                size_t viTri = tenCu.length() - tenTim.length();
+                if (tenCu.compare(viTri, tenTim.length(), tenTim) == 0 &&
+                    (viTri == 0 || tenCu[viTri - 1] == ' ')) {
+                    khopTen = true;
+                }
+            }
+
+            if (khopTen && ChuanHoa(nhom[j]->GetPhone()) == sdt) {
+                cout << "---------------------------\n";
+                cout << "Tim thay: " << "\n";
+                cout << "Ho ten : " << nhom[j]->GetName() << "\n";
+                cout << "SDT    : " << nhom[j]->GetPhone() << "\n";
+                cout << "---------------------------\n";
+
+                if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
+                    delete nhom[j];
+                    nhom.erase(nhom.begin() + j);
+                    cout << "Xoa contact thanh cong!\n";
+                    Hienthisapxep();
+                    return true;
+                }
+                else {
+                    cout << "Da huy thao tac xoa.\n";
+                    return false;
                 }
             }
         }
