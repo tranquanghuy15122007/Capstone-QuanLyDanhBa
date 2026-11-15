@@ -2,11 +2,10 @@
 #include "HotroHienthiCSVFILE.h"
 #include <map>
 
-// Cau 10: so khan cap luu vao phim tat 1-9
 class NoteDB : public HotroHienthi
 {
 private:
-    map<int, string> phimTat; // key: phim (1-9), value: sdt
+    map<int, string> phimTat;
 
     int NhapPhim(string loiNhac) {
         int phim;
@@ -22,7 +21,6 @@ private:
     }
 
 protected:
-    // de protected cho lop con DanhBaYeuThich dung chung
     QuanlyDanhba* TimTheoSDT(const string& sdt) {
         for (int i = 0; i < 26; i++)
             for (QuanlyDanhba* p : getvector(i))
