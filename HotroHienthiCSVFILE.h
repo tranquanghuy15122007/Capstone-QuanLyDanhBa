@@ -1,18 +1,17 @@
 #pragma once
-
 #include "ChucNang.h"
 #include "date.h"
 #include <fstream>
 #include <sstream>
-#include <iomanip>
 
 class HotroHienthi : public ChucNang {
 public:
     HotroHienthi(string _name = "", string _sdt = "", string _quanhe = "", Date _ngaysinh = Date(), string _ghichu = "")
         : ChucNang(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
-    }//chỉ dùng khi nào có thuộc tính riêng
+    }
 
-    void docFileDanhBa(string danhba) {
+    // doc file csv vao danh ba
+    void docFileDanhBa(const string& danhba) {
         ifstream file(danhba);
         if (!file.is_open()) {
             cout << "Khong the mo file: " << danhba << " (Hay kiem tra lai vi tri file csv trong thu muc goc project!)\n";
@@ -21,73 +20,55 @@ public:
 
         string line;
         while (getline(file, line)) {
-            if (line.empty()) continue;
+            if (line.empty()) {
+                continue;
+            }
 
             stringstream ss(line);
-            string _name, _sdt, _quanhe, _ngaysinh_str, _ghichu;
+            string ten, sdt, quanhe, ngaysinhStr, ghichu;
 
-            // Đọc đúng theo thứ tự: Tên, SĐT, Quan hệ, Ngày sinh, Ghi chú
-            getline(ss, _name, ',');
-            getline(ss, _sdt, ',');
-            getline(ss, _quanhe, ',');
-            getline(ss, _ngaysinh_str, ',');
-            getline(ss, _ghichu, ',');
+            // thu tu: ten, sdt, quan he, ngay sinh, ghi chu
+            getline(ss, ten, ',');
+            getline(ss, sdt, ',');
+            getline(ss, quanhe, ',');
+            getline(ss, ngaysinhStr, ',');
+            getline(ss, ghichu);
 
-            // Xử lý chuỗi ngày sinh thành Date
-            Date _ngaysinh;
-            _ngaysinh.FromString(_ngaysinh_str);
+            // xoa khoang trang thua va ky tu \r
+            ten = ChuanHoa(ten);
+            sdt = ChuanHoa(sdt);
+            quanhe = ChuanHoa(quanhe);
+            ngaysinhStr = ChuanHoa(ngaysinhStr);
+            ghichu = ChuanHoa(ghichu);
 
-            // Cấp phát động đối tượng mới
-            QuanlyDanhba* newItem = new QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu);
+            Date ngaysinh;
+            ngaysinh.FromString(ngaysinhStr);
 
-            // Tách lấy Tên chính để phân loại vào các vector a-z
-            size_t last_space = _name.rfind(' ');
-            string tenChinh = _name;
-
-            if (last_space != string::npos) {
-                tenChinh = _name.substr(last_space + 1);
-            }
-
-            // Lấy ký tự đầu tiên để phân loại đơn giản
-            unsigned char c1 = tenChinh[0];
-            int index = 0;
-
-            if (c1 >= 'a' && c1 <= 'z') {
-                index = c1 - 'a';
-            }
-            else if (c1 >= 'A' && c1 <= 'Z') {
-                index = tolower(c1) - 'a';
-            }
-            else {
-                index = 0;
-            }
-
-            if (index < 0 || index > 25) index = 0;
-
-            // Đẩy vào đúng vector nhóm
-            getvector(index).push_back(newItem);
+            // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
+            QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
+            getvector(TinhIndex(ten)).push_back(newItem);
         }
 
         file.close();
         cout << "Load file vao class con thanh cong!\n\n";
     }
-    void Capnhatfilekhithem(string danhba) {
-        // Mở file ở chế độ ghi (ofstream)
-        ofstream file(danhba); // Nếu muốn ghi nối tiếp (không xóa dữ liệu cũ) thì dùng: ofstream file(danhba, ios::app);
+
+    // ghi lai toan bo danh ba ra file csv
+    void Capnhatfilekhithem(const string& danhba) {
+        ofstream file(danhba);
         if (!file.is_open()) {
             cout << "Khong the mo file de ghi: " << danhba << "\n";
             return;
         }
 
-        // Duyệt qua cả 26 vector từ a đến z để lấy dữ liệu ghi ra file
-        for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
-                file << nguoi->GetName() << ","
-                    << nguoi->GetPhone() << ","
-                    << nguoi->GetRelationship() << ","
-                    << nguoi->GetBirthday().DateToString() << ","
-                    << nguoi->GetNote() << "\n";
+        for (int i = 0; i < 26; i++) {
+            vector<QuanlyDanhba*>& nhom = getvector(i);
+            for (int j = 0; j < static_cast<int>(nhom.size()); j++) {
+                file << nhom[j]->GetName() << ","
+                    << nhom[j]->GetPhone() << ","
+                    << nhom[j]->GetRelationship() << ","
+                    << nhom[j]->GetBirthday().DateToString() << ","
+                    << nhom[j]->GetNote() << "\n";
             }
         }
 
