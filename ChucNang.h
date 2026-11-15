@@ -91,12 +91,14 @@ public:
             cout << "\nNhap cach hien thi (a-z hoac z-a): ";
             getline(cin, arrange);
 
-            while (arrange != "a-z" && arrange != "z-a") {
+            while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
+                arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
                 cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
                 getline(cin, arrange);
             }
 
-            if (arrange == "z-a") {
+            if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A") 
+            {
                 Display_DESC();
             }
             else {
