@@ -1,12 +1,9 @@
 #pragma once
 #include <iostream>
-#include <algorithm>
-#include <ctime>
-#include <chrono>
-#include <sstream>
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <stdexcept>
 #include "date.h"
 
 using namespace std;
@@ -16,13 +13,12 @@ class QuanlyDanhba
 private:
     string Name;
     string Phone;
-    string Relationship;//quanhe
+    string Relationship; // quanhe
     Date Birthday;
     string Note;
 
-    vector<QuanlyDanhba*> a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z;
-
-    friend istream& operator>>(istream& is, QuanlyDanhba& t);
+    // 26 vector tu a den z: mangDanhBa[0] la a, mangDanhBa[25] la z
+    vector<QuanlyDanhba*> mangDanhBa[26];// nếu hỏi sao ở đây không khái báo như trước thì nó dựa vào hàm tinhindex nhe
 
 public:
     QuanlyDanhba(string _name = "", string _phone = "", string _Relationship = "", Date _birth = Date(), string _note = "")
@@ -30,39 +26,36 @@ public:
     {
     }
 
-    string GetName() const { return Name; }
-    void SetName(string _name) { Name = _name; }
-    string GetPhone() const { return Phone; }
-    void SetPhone(string _phone) { Phone = _phone; }
-    string GetRelationship() const { return Relationship; }
-    void SetRelationship(string _Relationship) { Relationship = _Relationship; }
-    string GetNote() const { return Note; }
-    void SetNote(string _note) { Note = _note; }
-    Date GetBirthday() const { return Birthday; }
-    void SetBirthday(Date _birth) { Birthday = _birth; }
+    const string& GetName() const { return Name; }
+    void SetName(const string& _name) { Name = _name; }
+    const string& GetPhone() const { return Phone; }
+    void SetPhone(const string& _phone) { Phone = _phone; }
+    const string& GetRelationship() const { return Relationship; }
+    void SetRelationship(const string& _Relationship) { Relationship = _Relationship; }
+    const string& GetNote() const { return Note; }
+    void SetNote(const string& _note) { Note = _note; }
+    const Date& GetBirthday() const { return Birthday; }
+    void SetBirthday(const Date& _birth) { Birthday = _birth; }
 
-    // Hàm getvector trả về tham chiếu vector<QuanlyDanhba*>&
+    // tra ve vector thu index (0 den 25)
     vector<QuanlyDanhba*>& getvector(int index) {
         if (index < 0 || index > 25) {
             throw out_of_range("Index phai tu 0 den 25!");
         }
-
-        vector<QuanlyDanhba*>* danhsach[] = {
-           &a, &b, &c, &d, &e, &f, &g, &h, &i, &j, &k, &l, &m,
-           &n, &o, &p, &q, &r, &s, &t, &u, &v, &w, &x, &y, &z
-        };
-        return *danhsach[index];
+        return mangDanhBa[index];
     }
 
+    // xoa het cac contact con trong 26 vector
     virtual ~QuanlyDanhba() {
         for (int i = 0; i < 26; i++) {
-            for (auto ptr : getvector(i)) {
-                delete ptr;
+            for (int j = 0; j < mangDanhBa[i].size(); j++) {
+                delete mangDanhBa[i][j];
             }
-            getvector(i).clear();
+            mangDanhBa[i].clear();
         }
     }
 
+    // hien thi tu a den z
     void Display() {
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
@@ -72,19 +65,19 @@ public:
             << " | " << setw(34) << "Ghi Chu" << " |\n";
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
-        for (int idx = 0; idx < 26; idx++) {
-            vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
-                cout << "| " << left << setw(24) << nguoi->GetName()
-                    << " | " << setw(13) << nguoi->GetPhone()
-                    << " | " << setw(15) << nguoi->GetRelationship()
-                    << " | " << setw(15) << nguoi->GetBirthday().DateToString()
-                    << " | " << setw(34) << nguoi->GetNote() << " |\n";
+        for (int i = 0; i < 26; i++) {
+            for (int j = 0; j < mangDanhBa[i].size(); j++) {
+                cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
+                    << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
+                    << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()
+                    << " | " << setw(15) << mangDanhBa[i][j]->GetBirthday().DateToString()
+                    << " | " << setw(34) << mangDanhBa[i][j]->GetNote() << " |\n";
             }
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
     }
 
+    // hien thi tu z den a
     void Display_DESC() {
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
         cout << "| " << left << setw(24) << "Ten"
@@ -94,43 +87,15 @@ public:
             << " | " << setw(34) << "Ghi Chu" << " |\n";
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
-        for (int idx = 25; idx >= 0; idx--) {
-            vector<QuanlyDanhba*>& nhom = getvector(idx);
-            for (const auto& nguoi : nhom) {
-                cout << "| " << left << setw(24) << nguoi->GetName()
-                    << " | " << setw(13) << nguoi->GetPhone()
-                    << " | " << setw(15) << nguoi->GetRelationship()
-                    << " | " << setw(15) << nguoi->GetBirthday().DateToString()
-                    << " | " << setw(34) << nguoi->GetNote() << " |\n";
+        for (int i = 25; i >= 0; i--) {
+            for (int j = (int)mangDanhBa[i].size() - 1; j >= 0; j--) {
+                cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
+                    << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
+                    << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()
+                    << " | " << setw(15) << mangDanhBa[i][j]->GetBirthday().DateToString()
+                    << " | " << setw(34) << mangDanhBa[i][j]->GetNote() << " |\n";
             }
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
     }
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Hàm thêm contact vào đúng vector a-z (nhận vào con trỏ QuanlyDanhba*)
-
 };
-
-
- istream& operator>>(istream& is, QuanlyDanhba& p) {
-    cout << "Nhap ho ten: ";
-    getline(is, p.Name);
-
-    cout << "Nhap SDT: ";
-    is >> p.Phone; // Nhập SĐT đúng vào đây
-
-    cout << "Nhap quan he: ";
-    is.ignore();
-    getline(is, p.Relationship); // Nhập quan hệ đúng vào đây
-
-    cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-    string dateStr;
-    is >> dateStr;
-    p.Birthday.FromString(dateStr); // Nhập ngày sinh đúng vào đây
-
-    cout << "Nhap ghi chu: ";
-    is.ignore();
-    getline(is, p.Note); // Nhập ghi chú (hoặc email) đúng vào đây
-
-    return is;
-}
