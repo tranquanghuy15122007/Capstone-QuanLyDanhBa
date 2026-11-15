@@ -173,11 +173,6 @@ public:
         string name, phone, relationship, dateStr, note;
         Date d;
 
-        if (!XacNhan("Ban co chac chan muon them lien lac moi khong?")) {
-            cout << "Da huy thao tac them.\n";
-            return;
-        }
-
         cout << "Nhap ho ten: ";
         name = DocDong();
 
@@ -224,6 +219,11 @@ public:
             note = DocDong();
         }
 
+        if (!XacNhan("Ban co chac chan muon them lien lac nay khong?")) {
+            cout << "Da huy thao tac them.\n";
+            return;
+        }
+
         QuanlyDanhba* p = new QuanlyDanhba(name, phone, relationship, d, note);
         int index = TinhIndex(name);
         getvector(index).push_back(p);
@@ -231,20 +231,34 @@ public:
         Hienthisapxep();
     }
 
-    // 2. Xoa contact theo sdt: tra ve true neu da xoa, false neu khong xoa
+    // 2. Xoa contact theo ten + sdt: tra ve true neu da xoa, false neu khong xoa
     bool Xoa() {
-        string sdt;
+        string ten, sdt;
+
+        cout << "Nhap ho ten can xoa: ";
+        ten = DocDong();
+        while (!TenHopLe(ten)) {
+            cout << "Ten khong hop le! Nhap lai: ";
+            ten = DocDong();
+        }
+
         cout << "Nhap SDT can xoa (dung 10 so va bat dau bang 0): ";
         sdt = DocDong();
-
         while (!SDTHopLe(sdt)) {
             cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
             sdt = DocDong();
         }
 
+        string tenTim = ten;
+        transform(tenTim.begin(), tenTim.end(), tenTim.begin(), ::tolower);
+
+        // tim nguoi khop ca ten va sdt
         for (int i = 0; i < 26; i++) {
             for (size_t j = 0; j < getvector(i).size(); j++) {
-                if (ChuanHoa(getvector(i)[j]->GetPhone()) == sdt) {
+                string tenCu = ChuanHoa(getvector(i)[j]->GetName());
+                transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
+
+                if (tenCu == tenTim && ChuanHoa(getvector(i)[j]->GetPhone()) == sdt) {
                     cout << "---------------------------\n";
                     cout << "Tim thay: " << "\n";
                     cout << "Ho ten : " << getvector(i)[j]->GetName() << "\n";
@@ -266,7 +280,7 @@ public:
             }
         }
 
-        cout << "Khong tim thay nguoi nao co SDT nay trong danh sach!\n";
+        cout << "Khong tim thay nguoi nao co ten va SDT nay trong danh sach!\n";
         return false;
     }
 
