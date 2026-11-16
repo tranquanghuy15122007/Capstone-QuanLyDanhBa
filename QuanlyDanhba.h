@@ -56,18 +56,6 @@ protected:
         return note.empty() || (note.length() >= 1 && ChiChuaChuVaKhoangTrang(note));
     }
 
-    static string Trim(const string& s) {
-        size_t start = 0;
-        while (start < s.length() && isspace((unsigned char)s[start]))
-            ++start;
-
-        size_t end = s.length();
-        while (end > start && isspace((unsigned char)s[end - 1]))
-            --end;
-
-        return s.substr(start, end - start);
-    }
-
     // doc 1 dong va chuan hoa
     static string DocDong(istream& is) {
         string s;
@@ -197,7 +185,7 @@ public:
 
         cout << "Nhap quan he: ";
         relationship = DocDong(is);
-        while (!QuanHeHopLe(Trim(relationship))) {
+        while (!QuanHeHopLe(relationship)) {
             cout << "Quan he khong hop le! Nhap lai: ";
             relationship = DocDong(is);
         }
@@ -211,7 +199,7 @@ public:
 
         cout << "Nhap ghi chu: ";
         note = DocDong(is);
-        while (!GhiChuHopLe(Trim(note))) {
+        while (!GhiChuHopLe(note)) {
             cout << "Nhap lai ghi chu: ";
             note = DocDong(is);
         }

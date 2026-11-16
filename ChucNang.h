@@ -313,7 +313,7 @@ public:
                 cout << "Nhap quan he moi: ";
                 quanhe = DocDong(cin);
 
-                while (!QuanHeHopLe(Trim(quanhe))) {
+                while (!QuanHeHopLe(quanhe)) {
                     cout << "Quan he khong hop le! Nhap lai: ";
                     quanhe = DocDong(cin);
                 }
@@ -336,7 +336,7 @@ public:
             if (chon == "5" || chon == "6") {
                 cout << "Nhap ghi chu moi: ";
                 ghichu = DocDong(cin);
-                while (!GhiChuHopLe(Trim(ghichu))) {
+                while (!GhiChuHopLe(ghichu)) {
                     cout << "Nhap lai ghi chu: ";
                     ghichu = DocDong(cin);
                 }
@@ -482,7 +482,7 @@ public:
         cout << "Nhap ten nhom quan he can loc: ";
         findRelation = DocDong(cin);
 
-        while (!QuanHeHopLe(Trim(findRelation))) {
+        while (!QuanHeHopLe(findRelation)) {
             cout << "Ten nhom quan he khong hop le! Nhap lai: ";
             findRelation = DocDong(cin);
         }
