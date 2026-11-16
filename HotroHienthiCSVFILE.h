@@ -34,19 +34,27 @@ public:
             getline(ss, ngaysinhStr, ',');
             getline(ss, ghichu);
 
-            // xoa khoang trang thua va ky tu \r
-            ten = ChuanHoa(ten);
-            sdt = ChuanHoa(sdt);
-            quanhe = ChuanHoa(quanhe);
-            ngaysinhStr = ChuanHoa(ngaysinhStr);
-            ghichu = ChuanHoa(ghichu);
+            if (!KiemTraTrungSDT(sdt)) //Kiem tra co trung SDT nao trong danh ba hien co khong? Neu ton tai thi bo qua thong tin lien lac dang doc.
+            {
+                // xoa khoang trang thua va ky tu \r
+                ten = ChuanHoa(ten);
+                sdt = ChuanHoa(sdt);
+                quanhe = ChuanHoa(quanhe);
+                ngaysinhStr = ChuanHoa(ngaysinhStr);
+                ghichu = ChuanHoa(ghichu);
 
-            Date ngaysinh;
-            ngaysinh.FromString(ngaysinhStr);
+                Date ngaysinh;
+                if (ngaysinhStr.empty() || !ngaysinh.FromString(ngaysinhStr))
+                {
+                    ngaysinh.SetDay(0);
+                    ngaysinh.SetMonth(0);
+                    ngaysinh.SetYear(0);
+                }
 
-            // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
-            QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
-            getvector(TinhIndex(ten)).push_back(newItem);
+                // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
+                QuanlyDanhba* newItem = new QuanlyDanhba(ten, sdt, quanhe, ngaysinh, ghichu);
+                getvector(TinhIndex(ten)).push_back(newItem);
+            }
         }
 
         file.close();
@@ -64,10 +72,12 @@ public:
         for (int i = 0; i < 26; i++) {
             vector<QuanlyDanhba*>& nhom = getvector(i);
             for (int j = 0; j < static_cast<int>(nhom.size()); j++) {
+                Date dBirth = nhom[j]->GetBirthday();
+                string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                 file << nhom[j]->GetName() << ","
                     << nhom[j]->GetPhone() << ","
                     << nhom[j]->GetRelationship() << ","
-                    << nhom[j]->GetBirthday().DateToString() << ","
+                    << strBirth << ","
                     << nhom[j]->GetNote() << "\n";
             }
         }

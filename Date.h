@@ -38,6 +38,11 @@ public:
 	int GetMonth() const { return Month; }
 	int GetYear() const { return Year; }
 
+	// Setters
+	void SetDay(int day) { Day = day; }
+	void SetMonth(int month) { Month = month; }
+	void SetYear(int year) { Year = year; }
+
 	// Kiem tra nam nhuan
 	static bool IsLeapYear(int year)
 	{
@@ -77,6 +82,20 @@ public:
 		}
 		if (Year < 1000 || Year > 9999) {
 			cout << "Year phai nhap 4 so" << endl;
+			return false;
+		}
+		return true;
+	}
+
+	bool IsValidDateNoWarning() const
+	{
+		if (Month < 1 || Month > 12) {
+			return false;
+		}
+		if (Day < 1 || Day > LastDayOfMonth()) {
+			return false;
+		}
+		if (Year < 1000 || Year > 9999) {
 			return false;
 		}
 		return true;

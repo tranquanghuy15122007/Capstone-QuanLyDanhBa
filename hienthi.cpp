@@ -60,7 +60,7 @@ int main()
     do
     {
         InTieuDe("MENU QUAN LY");
-        cout << "[1]. Hien thi danh ba" << endl;
+        cout << "[1]. Xem danh ba" << endl;
         cout << "[2]. Them lien lac" << endl;
         cout << "[3]. Sua lien lac" << endl;
         cout << "[4]. Xoa lien lac" << endl;
@@ -78,28 +78,7 @@ int main()
         {
         case 1:
         {
-            int sapxep;
-            do
-            {
-                cout << "\n[1]. A-Z" << endl;
-                cout << "[2]. Z-A" << endl;
-                cout << "[0]. Quay lai" << endl;
-                sapxep = NhapLuaChon();
-
-                switch (sapxep)
-                {
-                case 1:
-                    qlDanhBa.Display();
-                    break;
-                case 2:
-                    qlDanhBa.Display_DESC();
-                    break;
-                case 0:
-                    break;
-                default:
-                    cout << "Lua chon khong hop le!\n";
-                }
-            } while (sapxep != 0);
+            qlDanhBa.Hienthisapxep();
             break;
         }
 

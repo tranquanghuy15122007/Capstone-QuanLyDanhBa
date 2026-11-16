@@ -80,34 +80,22 @@ public:
 
     // hoi co muon hien bang khong, neu yes thi hoi a-z hoac z-a
     void Hienthisapxep() {
-        string luachon;
-        cout << "\nBan co muon hien bang danh ba khong? (yes/no): ";
-        getline(cin, luachon);
+        string arrange;
+        cout << "\nNhap cach hien thi (a-z hoac z-a): ";
+        getline(cin, arrange);
 
-        while (luachon != "yes" && luachon != "YES" && luachon != "Yes" && luachon != "YEs" &&
-            luachon != "no" && luachon != "NO" && luachon != "No") {
-            cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
-            getline(cin, luachon);
+        while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
+            arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
+            cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
+            getline(cin, arrange);
         }
 
-        if (luachon == "yes" || luachon == "YES" || luachon == "Yes" || luachon == "YEs") {
-            string arrange;
-            cout << "\nNhap cach hien thi (a-z hoac z-a): ";
-            getline(cin, arrange);
-
-            while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
-                arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
-                cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
-                getline(cin, arrange);
-            }
-
-            if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A") 
-            {
-                Display_DESC();
-            }
-            else {
-                Display();
-            }
+        if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A")
+        {
+            Display_DESC();
+        }
+        else {
+            Display();
         }
     }
 
@@ -550,10 +538,12 @@ public:
                 transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
 
                 if (relationship.find(findRelation) != string::npos) {
+                    Date dBirth = nhom[j]->GetBirthday();
+                    string strBirth = dBirth.IsValidDateNoWarning() ? dBirth.DateToString() : "";
                     cout << "| " << left << setw(24) << nhom[j]->GetName()
                         << " | " << setw(13) << nhom[j]->GetPhone()
                         << " | " << setw(15) << nhom[j]->GetRelationship()
-                        << " | " << setw(15) << nhom[j]->GetBirthday().DateToString()
+                        << " | " << setw(15) << strBirth
                         << " | " << setw(34) << nhom[j]->GetNote() << " |\n";
                 }
             }
@@ -568,7 +558,7 @@ public:
         for (int i = 0; i < 26; i++) {
             vector<QuanlyDanhba*>& nhom = getvector(i);
             for (size_t j = 0; j < nhom.size(); j++) {
-                if (nhom[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0) {
+                if (nhom[j]->GetBirthday().IsValidDateNoWarning() && nhom[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0) {
                     danhsach.push_back(nhom[j]);
                 }
             }
