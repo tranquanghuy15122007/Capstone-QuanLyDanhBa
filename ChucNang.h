@@ -78,27 +78,6 @@ public:
         : QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
     }
 
-    // hoi co muon hien bang khong, neu yes thi hoi a-z hoac z-a
-    void Hienthisapxep() {
-        string arrange;
-        cout << "\nNhap cach hien thi (a-z hoac z-a): ";
-        getline(cin, arrange);
-
-        while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
-            arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
-            cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
-            getline(cin, arrange);
-        }
-
-        if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A")
-        {
-            Display_DESC();
-        }
-        else {
-            Display();
-        }
-    }
-
     // xoa ky tu xuong dong o cuoi va khoang trang o hai dau
     string ChuanHoa(string s) {
         while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) {
@@ -114,6 +93,48 @@ public:
         size_t cuoi = s.find_last_not_of(" \t");
 
         return s.substr(dau, cuoi - dau + 1);
+    }
+
+    // doc 1 dong va chuan hoa
+    string DocDong() {
+        string s;
+        getline(cin, s);
+        return ChuanHoa(s);
+    }
+
+    // hoi yes/no, tra ve true neu yes, false neu no
+    bool XacNhan(const string& cauHoi) {
+        cout << cauHoi << " (yes/no): ";
+        string s = DocDong();
+        transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+        while (s != "yes" && s != "no") {
+            cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
+            s = DocDong();
+            transform(s.begin(), s.end(), s.begin(), ::tolower);
+        }
+        return s == "yes";
+    }
+
+    // hoi cach hien thi a-z hoac z-a
+    void Hienthisapxep() {
+        string arrange;
+        cout << "\nNhap cach hien thi (a-z hoac z-a): ";
+        arrange = DocDong();
+
+        while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
+            arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
+            cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
+            arrange = DocDong();
+        }
+
+        if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A")
+        {
+            Display_DESC();
+        }
+        else {
+            Display();
+        }
     }
 
     // kiem tra trung ten
@@ -154,14 +175,14 @@ public:
     // 1. Them contact
     void Them() {
         string name, phone, relationship, dateStr, note;
+        Date d;
+
         cout << "Nhap ho ten: ";
-        getline(cin, name);
-        name = ChuanHoa(name);
+        name = DocDong();
 
         while (!TenHopLe(name)) {
             cout << "Ten khong hop le! Nhap lai: ";
-            getline(cin, name);
-            name = ChuanHoa(name);
+            name = DocDong();
         }
 
         if (KiemTraTrungTen(name)) {
@@ -169,8 +190,7 @@ public:
         }
 
         cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
-        getline(cin, phone);
-        phone = ChuanHoa(phone);
+        phone = DocDong();
 
         while (!SDTHopLe(phone) || KiemTraTrungSDT(phone)) {
             if (SDTHopLe(phone) && KiemTraTrungSDT(phone)) {
@@ -179,37 +199,33 @@ public:
             else {
                 cout << "SDT khong hop le (phai du 10 so va bat dau bang 0 va chi duoc chua chu so)! Nhap lai: ";
             }
-
-            getline(cin, phone);
-            phone = ChuanHoa(phone);
+            phone = DocDong();
         }
 
         cout << "Nhap quan he: ";
-        getline(cin, relationship);
-        relationship = ChuanHoa(relationship);
+        relationship = DocDong();
         while (!QuanHeHopLe(relationship)) {
             cout << "Quan he khong hop le! Nhap lai: ";
-            getline(cin, relationship);
-            relationship = ChuanHoa(relationship);
+            relationship = DocDong();
         }
 
-        Date d;
         cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-        getline(cin, dateStr);
-        dateStr = ChuanHoa(dateStr);
+        dateStr = DocDong();
         while (dateStr.empty() || !d.FromString(dateStr) || !d.IsValidDate()) {
             cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
-            getline(cin, dateStr);
-            dateStr = ChuanHoa(dateStr);
+            dateStr = DocDong();
         }
 
         cout << "Nhap ghi chu: ";
-        getline(cin, note);
-        note = ChuanHoa(note);
+        note = DocDong();
         while (!GhiChuHopLe(note)) {
             cout << "Nhap lai ghi chu: ";
-            getline(cin, note);
-            note = ChuanHoa(note);
+            note = DocDong();
+        }
+
+        if (!XacNhan("Ban co chac chan muon them lien lac nay khong?")) {
+            cout << "Da huy thao tac them.\n";
+            return;
         }
 
         QuanlyDanhba* p = new QuanlyDanhba(name, phone, relationship, d, note);
@@ -219,55 +235,68 @@ public:
         Hienthisapxep();
     }
 
-    // 2. Xoa contact theo sdt: tra ve true neu da xoa, false neu khong xoa
+    // 2. Xoa contact theo ten + sdt: tra ve true neu da xoa, false neu khong xoa
     bool Xoa() {
-        string sdt;
-        cout << "Nhap SDT can xoa (dung 10 so va bat dau bang 0): ";
-        getline(cin, sdt);
-        sdt = ChuanHoa(sdt);
+        string ten, sdt;
 
-        while (!SDTHopLe(sdt)) {
-            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
-            getline(cin, sdt);
-            sdt = ChuanHoa(sdt);
+        cout << "Nhap ho ten can xoa: ";
+        ten = DocDong();
+        while (!TenHopLe(ten)) {
+            cout << "Ten khong hop le! Nhap lai: ";
+            ten = DocDong();
         }
 
-        for (int i = 0; i < 26; i++) {
-            for (size_t j = 0; j < getvector(i).size(); j++) {
-                if (ChuanHoa(getvector(i)[j]->GetPhone()) == sdt) {
-                    cout << "---------------------------\n";
-                    cout << "Tim thay: " << "\n";
-                    cout << "Ho ten : " << getvector(i)[j]->GetName() << "\n";
-                    cout << "SDT    : " << getvector(i)[j]->GetPhone() << "\n";
-                    cout << "---------------------------\n";
+        cout << "Nhap SDT can xoa (dung 10 so va bat dau bang 0): ";
+        sdt = DocDong();
+        while (!SDTHopLe(sdt)) {
+            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
+            sdt = DocDong();
+        }
 
-                    string xacNhan;
-                    cout << "Ban co chac chan muon xoa nguoi nay khong? (yes/no): ";
-                    getline(cin, xacNhan);
-                    xacNhan = ChuanHoa(xacNhan);
-                    while (xacNhan != "yes" && xacNhan != "YES" && xacNhan != "Yes" && xacNhan != "YEs" &&
-                        xacNhan != "no" && xacNhan != "NO" && xacNhan != "No") {
-                        cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
-                        getline(cin, xacNhan);
-                        xacNhan = ChuanHoa(xacNhan);
-                    }
+        string tenTim = ten;
+        transform(tenTim.begin(), tenTim.end(), tenTim.begin(), ::tolower);
 
-                    if (xacNhan == "yes" || xacNhan == "YES" || xacNhan == "Yes" || xacNhan == "YEs") {
-                        delete getvector(i)[j];
-                        getvector(i).erase(getvector(i).begin() + j);
-                        cout << "Xoa contact thanh cong!\n";
-                        Hienthisapxep();
-                        return true;
-                    }
-                    else {
-                        cout << "Da huy thao tac xoa.\n";
-                        return false;
-                    }
+        // dua vao chu cai dau cua ten chinh (tu cuoi cung) de biet nam o vector nao
+        int index = TinhIndex(ten);
+        vector<QuanlyDanhba*>& nhom = getvector(index);
+
+        for (size_t j = 0; j < nhom.size(); j++) {
+            string tenCu = ChuanHoa(nhom[j]->GetName());
+            transform(tenCu.begin(), tenCu.end(), tenCu.begin(), ::tolower);
+
+            // so sanh ten tu phai sang trai, chi den dau cach
+            // vd nhap "huy" hoac "quang huy" deu khop "Tran Quang Huy"
+            bool khopTen = false;
+            if (tenCu.length() >= tenTim.length()) {
+                size_t viTri = tenCu.length() - tenTim.length();
+                if (tenCu.compare(viTri, tenTim.length(), tenTim) == 0 &&
+                    (viTri == 0 || tenCu[viTri - 1] == ' ')) {
+                    khopTen = true;
+                }
+            }
+
+            if (khopTen && ChuanHoa(nhom[j]->GetPhone()) == sdt) {
+                cout << "---------------------------\n";
+                cout << "Tim thay: " << "\n";
+                cout << "Ho ten : " << nhom[j]->GetName() << "\n";
+                cout << "SDT    : " << nhom[j]->GetPhone() << "\n";
+                cout << "---------------------------\n";
+
+                if (XacNhan("Ban co chac chan muon xoa nguoi nay khong?")) {
+                    delete nhom[j];
+                    nhom.erase(nhom.begin() + j);
+                    cout << "Xoa contact thanh cong!\n";
+                    Hienthisapxep();
+                    return true;
+                }
+                else {
+                    cout << "Da huy thao tac xoa.\n";
+                    return false;
                 }
             }
         }
 
-        cout << "Khong tim thay nguoi nao co SDT nay trong danh sach!\n";
+        cout << "Khong tim thay nguoi nao co ten va SDT nay trong danh sach!\n";
         return false;
     }
 
@@ -276,8 +305,7 @@ public:
         string sdt;
         do {
             cout << "Nhap SDT can sua (dung 10 so va bat dau bang 0): ";
-            getline(cin, sdt);
-            sdt = ChuanHoa(sdt);
+            sdt = DocDong();
 
             if (!SDTHopLe(sdt)) {
                 cout << "SDT khong hop le!\n";
@@ -313,90 +341,113 @@ public:
         cout << "SDT    : " << target->GetPhone() << "\n";
         cout << "---------------------------\n";
 
-        string xacNhan;
-        cout << "Ban co chac chan muon sua nguoi nay khong? (yes/no): ";
-        getline(cin, xacNhan);
-        xacNhan = ChuanHoa(xacNhan);
-        while (xacNhan != "yes" && xacNhan != "YES" && xacNhan != "Yes" && xacNhan != "YEs" &&
-            xacNhan != "no" && xacNhan != "NO" && xacNhan != "No") {
-            cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
-            getline(cin, xacNhan);
-            xacNhan = ChuanHoa(xacNhan);
-        }
-        if (xacNhan == "no" || xacNhan == "NO" || xacNhan == "No") {
+        if (!XacNhan("Ban co chac chan muon sua nguoi nay khong?")) {
             cout << "Da huy thao tac sua.\n";
             return false;
         }
 
         // nhap thong tin moi
-        string ten, sdtMoi, quanhe, ghichu, ngaysinhStr;
-        cout << "Nhap ho ten: ";
-        getline(cin, ten);
-        ten = ChuanHoa(ten);
+        string ten, sdtMoi, quanhe, ghichu, ngaysinhStr, chon;
+        bool daSua = false;
 
-        while (!TenHopLe(ten)) {
-            cout << "Ten khong hop le! Nhap lai: ";
-            getline(cin, ten);
-            ten = ChuanHoa(ten);
-        }
+        do {
+            // menu chon muc can sua
+            cout << "\n===== CHON MUC BAN MUON SUA =====\n";
+            cout << "1. Sua ho ten     (hien tai: " << target->GetName() << ")\n";
+            cout << "2. Sua SDT        (hien tai: " << target->GetPhone() << ")\n";
+            cout << "3. Sua quan he    (hien tai: " << target->GetRelationship() << ")\n";
+            cout << "4. Sua ngay sinh  (hien tai: " << target->GetBirthday().DateToString() << ")\n";
+            cout << "5. Sua ghi chu    (hien tai: " << target->GetNote() << ")\n";
+            cout << "6. Sua tat ca\n";
+            cout << "0. Hoan tat\n";
+            cout << "Nhap lua chon: ";
+            chon = DocDong();
 
-        if (KiemTraTrungTen(ten, target)) {
-            cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)" << endl;
-        }
-
-        cout << "Nhap SDT moi (dung 10 so va bat dau bang 0): ";
-        getline(cin, sdtMoi);
-        sdtMoi = ChuanHoa(sdtMoi);
-
-        while (!SDTHopLe(sdtMoi) || KiemTraTrungSDT(sdtMoi, target)) {
-            if (SDTHopLe(sdtMoi) && KiemTraTrungSDT(sdtMoi, target)) {
-                cout << "SDT da ton tai! Nhap lai: ";
-            }
-            else {
-                cout << "SDT khong hop le! Nhap lai: ";
+            while (chon != "0" && chon != "1" && chon != "2" && chon != "3" &&
+                chon != "4" && chon != "5" && chon != "6") {
+                cout << "Lua chon khong hop le! Vui long nhap lai (0-6): ";
+                chon = DocDong();
             }
 
-            getline(cin, sdtMoi);
-            sdtMoi = ChuanHoa(sdtMoi);
-        }
+            if (chon == "1" || chon == "6") {
+                cout << "Nhap ho ten: ";
+                ten = DocDong();
 
-        cout << "Nhap quan he moi: ";
-        getline(cin, quanhe);
-        quanhe = ChuanHoa(quanhe);
-        while (!QuanHeHopLe(quanhe)) {
-            cout << "Quan he khong hop le! Nhap lai: ";
-            getline(cin, quanhe);
-            quanhe = ChuanHoa(quanhe);
-        }
+                while (!TenHopLe(ten)) {
+                    cout << "Ten khong hop le! Nhap lai: ";
+                    ten = DocDong();
+                }
 
-        Date d;
-        cout << "Nhap ngay sinh moi (dd/mm/yyyy): ";
-        getline(cin, ngaysinhStr);
-        ngaysinhStr = ChuanHoa(ngaysinhStr);
-        while (ngaysinhStr.empty() || !d.FromString(ngaysinhStr) || !d.IsValidDate()) {
-            cout << "Ngay sinh khong hop le! Nhap lai: ";
-            getline(cin, ngaysinhStr);
-            ngaysinhStr = ChuanHoa(ngaysinhStr);
-        }
+                if (KiemTraTrungTen(ten, target)) {
+                    cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)" << endl;
+                }
+                target->SetName(ten);
+                daSua = true;
+            }
 
-        cout << "Nhap ghi chu moi: ";
-        getline(cin, ghichu);
-        ghichu = ChuanHoa(ghichu);
-        while (!GhiChuHopLe(ghichu)) {
-            cout << "Nhap lai ghi chu: ";
-            getline(cin, ghichu);
-            ghichu = ChuanHoa(ghichu);
-        }
+            if (chon == "2" || chon == "6") {
+                cout << "Nhap SDT moi (dung 10 so va bat dau bang 0): ";
+                sdtMoi = DocDong();
 
-        // cap nhat thong tin
-        target->SetName(ten);
-        target->SetPhone(sdtMoi);
-        target->SetRelationship(quanhe);
-        target->SetBirthday(d);
-        target->SetNote(ghichu);
+                while (!SDTHopLe(sdtMoi) || KiemTraTrungSDT(sdtMoi, target)) {
+                    if (SDTHopLe(sdtMoi) && KiemTraTrungSDT(sdtMoi, target)) {
+                        cout << "SDT da ton tai! Nhap lai: ";
+                    }
+                    else {
+                        cout << "SDT khong hop le! Nhap lai: ";
+                    }
+                    sdtMoi = DocDong();
+                }
+                target->SetPhone(sdtMoi);
+                daSua = true;
+            }
+
+            if (chon == "3" || chon == "6") {
+                cout << "Nhap quan he moi: ";
+                quanhe = DocDong();
+                while (!QuanHeHopLe(quanhe)) {
+                    cout << "Quan he khong hop le! Nhap lai: ";
+                    quanhe = DocDong();
+                }
+                target->SetRelationship(quanhe);
+                daSua = true;
+            }
+
+            if (chon == "4" || chon == "6") {
+                Date d;
+                cout << "Nhap ngay sinh moi (dd/mm/yyyy): ";
+                ngaysinhStr = DocDong();
+                while (ngaysinhStr.empty() || !d.FromString(ngaysinhStr) || !d.IsValidDate()) {
+                    cout << "Ngay sinh khong hop le! Nhap lai: ";
+                    ngaysinhStr = DocDong();
+                }
+                target->SetBirthday(d);
+                daSua = true;
+            }
+
+            if (chon == "5" || chon == "6") {
+                cout << "Nhap ghi chu moi: ";
+                ghichu = DocDong();
+                while (!GhiChuHopLe(ghichu)) {
+                    cout << "Nhap lai ghi chu: ";
+                    ghichu = DocDong();
+                }
+                target->SetNote(ghichu);
+                daSua = true;
+            }
+
+            if (chon == "6") {
+                chon = "0"; // sua tat ca xong thi thoat
+            }
+        } while (chon != "0");
+
+        if (!daSua) {
+            cout << "Ban chua sua gi ca.\n";
+            return false;
+        }
 
         // neu doi chu cai dau thi chuyen sang vector khac
-        int newI = TinhIndex(ten);
+        int newI = TinhIndex(target->GetName());
         if (newI != oldI) {
             getvector(oldI).erase(getvector(oldI).begin() + oldJ);
             getvector(newI).push_back(target);
@@ -514,10 +565,19 @@ public:
     // Loc theo nhom quan he
     void LocTheoTenNhom() {
         string findRelation;
-        cout << "Nhap ten nhom quan he can loc: ";
 
-        getline(cin, findRelation);
-        findRelation = ChuanHoa(findRelation);
+        if (!XacNhan("Ban co chac chan muon loc lien lac theo nhom quan he khong?")) {
+            cout << "Da huy thao tac loc.\n";
+            return;
+        }
+
+        cout << "Nhap ten nhom quan he can loc: ";
+        findRelation = DocDong();
+
+        while (!QuanHeHopLe(findRelation)) {
+            cout << "Ten nhom quan he khong hop le! Nhap lai: ";
+            findRelation = DocDong();
+        }
         cout << endl;
 
         // doi het ve chu thuong de so sanh
@@ -553,6 +613,11 @@ public:
 
     // Danh sach sap sinh nhat trong nam
     void DanhSachSapSinhNhat() {
+        if (!XacNhan("Ban co chac chan muon xem danh sach lien lac sap sinh nhat khong?")) {
+            cout << "Da huy thao tac xem.\n";
+            return;
+        }
+
         vector<QuanlyDanhba*> danhsach;
 
         for (int i = 0; i < 26; i++) {

@@ -38,7 +38,7 @@ void InTieuDe(string tieuDe)
 
 int main()
 {
-    system("chcp 65001 > nul");
+   
 
     // DanhBaYeuThich la lop con cuoi cung (QuanlyDanhba -> ChucNang -> HotroHienthi -> NoteDB -> DanhBaYeuThich)
     // -> 1 doi tuong dung duoc ca chuc nang danh ba, yeu thich va khan cap tren CUNG 1 danh ba
