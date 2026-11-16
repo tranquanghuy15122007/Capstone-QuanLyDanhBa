@@ -132,6 +132,7 @@ public:
         }
 
         if (!XacNhan("Ban co chac chan muon them lien lac nay khong?")) {
+            delete p;
             cout << "Da huy thao tac them.\n";
             return;
         }
