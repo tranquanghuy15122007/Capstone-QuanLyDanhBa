@@ -19,7 +19,7 @@ private:
 
 protected:
     // 26 vector tu a den z: mangDanhBa[0] la a, mangDanhBa[25] la z
-    vector<QuanlyDanhba*> mangDanhBa[26];// nếu hỏi sao ở đây không khái báo như trước thì nó dựa vào hàm tinhindex nhe
+    vector<QuanlyDanhba*> mangDanhBa[26];
 
     static bool SDTHopLe(const string& phone) {
         if (phone.length() != 10 || phone[0] != '0')
@@ -43,18 +43,54 @@ protected:
         return true;
     }
 
+    // chi cho phep ten co tu 2 ky tu tro len
     static bool TenHopLe(const string& ten) {
         return ten.length() >= 2 && ChiChuaChuVaKhoangTrang(ten);
     }
 
     static bool QuanHeHopLe(const string& qh) {
-        return qh.length() >= 2 && ChiChuaChuVaKhoangTrang(qh);
+        return qh.empty() || (qh.length() >= 1 && ChiChuaChuVaKhoangTrang(qh));
     }
 
     static bool GhiChuHopLe(const string& note) {
-        return !note.empty();
+        return note.empty() || (note.length() >= 1 && ChiChuaChuVaKhoangTrang(note));
     }
 
+    static string Trim(const string& s) {
+        size_t start = 0;
+        while (start < s.length() && isspace((unsigned char)s[start]))
+            ++start;
+
+        size_t end = s.length();
+        while (end > start && isspace((unsigned char)s[end - 1]))
+            --end;
+
+        return s.substr(start, end - start);
+    }
+
+    // doc 1 dong va chuan hoa
+    static string DocDong(istream& is) {
+        string s;
+        getline(is, s);
+        return ChuanHoa(s);
+    }
+
+    // xoa ky tu xuong dong o cuoi va khoang trang o hai dau
+    static string ChuanHoa(string s) {
+        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) {
+            s.pop_back();
+        }
+
+        size_t dau = s.find_first_not_of(" \t");
+
+        if (dau == string::npos) {
+            return "";
+        }
+
+        size_t cuoi = s.find_last_not_of(" \t");
+
+        return s.substr(dau, cuoi - dau + 1);
+    }
 public:
     QuanlyDanhba(string _name = "", string _phone = "", string _Relationship = "", Date _birth = Date(), string _note = "")
         : Name(_name), Phone(_phone), Relationship(_Relationship), Birthday(_birth), Note(_note)
@@ -144,45 +180,51 @@ public:
         Date d;
 
         cout << "Nhap ho ten: ";
-        getline(is, name);
+        name = DocDong(is);
 
         while (!TenHopLe(name)) {
             cout << "Ten khong hop le! Nhap lai: ";
-            getline(is, name);
+            name = DocDong(is);
         }
 
         cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
-        getline(is, phone);
+        phone = DocDong(is);
 
         while (!SDTHopLe(phone)) {
             cout << "SDT khong hop le (phai du 10 so va bat dau bang 0 va chi duoc chua chu so)! Nhap lai: ";
-            getline(is, phone);
+            phone = DocDong(is);
         }
 
         cout << "Nhap quan he: ";
-        getline(is, relationship);
-        while (!QuanHeHopLe(relationship)) {
+        relationship = DocDong(is);
+        while (!QuanHeHopLe(Trim(relationship))) {
             cout << "Quan he khong hop le! Nhap lai: ";
-            getline(is, relationship);
+            relationship = DocDong(is);
         }
 
         cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-        getline(is, dateStr);
-        while (dateStr.empty() || !d.FromStringNoWarning(dateStr) || !d.IsValidDateNoWarning()) {
+        dateStr = DocDong(is);
+        while (!dateStr.empty() && (!d.FromStringNoWarning(dateStr) || !d.IsValidDateNoWarning())) {
             cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
-            getline(is, dateStr);
+            dateStr = DocDong(is);
         }
 
         cout << "Nhap ghi chu: ";
-        getline(is, note);
-        while (!GhiChuHopLe(note)) {
+        note = DocDong(is);
+        while (!GhiChuHopLe(Trim(note))) {
             cout << "Nhap lai ghi chu: ";
-            getline(is, note);
+            note = DocDong(is);
         }
 
         danhba.SetName(name);
         danhba.SetPhone(phone);
-        danhba.SetRelationship(name);
+        danhba.SetRelationship(relationship);
+        if (dateStr.empty() || !d.IsValidDateNoWarning())
+        {
+            d.SetDay(0);
+            d.SetMonth(0);
+            d.SetYear(0);
+        }
         danhba.SetBirthday(d);
         danhba.SetNote(note);
 
