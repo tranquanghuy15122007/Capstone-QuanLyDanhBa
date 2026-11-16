@@ -48,7 +48,7 @@ public:
     // xoa het cac contact con trong 26 vector
     virtual ~QuanlyDanhba() {
         for (int i = 0; i < 26; i++) {
-            for (int j = 0; j < mangDanhBa[i].size(); j++) {
+            for (int j = 0; j < static_cast<int>(mangDanhBa[i].size()); j++) {
                 delete mangDanhBa[i][j];
             }
             mangDanhBa[i].clear();
@@ -66,7 +66,7 @@ public:
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
         for (int i = 0; i < 26; i++) {
-            for (int j = 0; j < mangDanhBa[i].size(); j++) {
+            for (int j = 0; j < static_cast<int>(mangDanhBa[i].size()); j++) {
                 cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
                     << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
                     << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()
@@ -88,7 +88,7 @@ public:
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
         for (int i = 25; i >= 0; i--) {
-            for (int j = (int)mangDanhBa[i].size() - 1; j >= 0; j--) {
+            for (int j = static_cast<int>(mangDanhBa[i].size()) - 1; j >= 0; j--) {
                 cout << "| " << left << setw(24) << mangDanhBa[i][j]->GetName()
                     << " | " << setw(13) << mangDanhBa[i][j]->GetPhone()
                     << " | " << setw(15) << mangDanhBa[i][j]->GetRelationship()

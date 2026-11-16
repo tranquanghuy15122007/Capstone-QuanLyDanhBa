@@ -63,7 +63,7 @@ public:
 
         for (int i = 0; i < 26; i++) {
             vector<QuanlyDanhba*>& nhom = getvector(i);
-            for (int j = 0; j < nhom.size(); j++) {
+            for (int j = 0; j < static_cast<int>(nhom.size()); j++) {
                 file << nhom[j]->GetName() << ","
                     << nhom[j]->GetPhone() << ","
                     << nhom[j]->GetRelationship() << ","
