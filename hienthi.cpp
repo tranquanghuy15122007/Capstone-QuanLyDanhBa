@@ -77,33 +77,24 @@ int main()
         switch (luachon)
         {
         case 1:
-        {
             qlDanhBa.Hienthisapxep();
             break;
-        }
-
         case 2:
             qlDanhBa.Them();
             qlDanhBa.Capnhatfilekhithem(tenFile);
             break;
-
         case 3:
             if (qlDanhBa.Sua())
                 qlDanhBa.Capnhatfilekhithem(tenFile);
             break;
-
         case 4:
             if (qlDanhBa.Xoa())
                 qlDanhBa.Capnhatfilekhithem(tenFile);
             break;
-
         case 5:
             qlDanhBa.LocTheoTenNhom();
             break;
-            
-
         case 6:
-        {
             int chonTK;
             do
             {
@@ -133,10 +124,7 @@ int main()
                 }
             } while (chonTK != 0);
             break;
-        }
-
         case 7:
-        {
             int chonYT;
             do
             {
@@ -168,10 +156,7 @@ int main()
                 }
             } while (chonYT != 0);
             break;
-        }
-
         case 8:
-        {
             int chonKC;
             do
             {
@@ -201,18 +186,14 @@ int main()
                     cout << "Lua chon khong hop le!\n";
                 }
             } while (chonKC != 0);
-            break;
-        }
-        
+            break;        
         case 9:
             cout << "Danh sach lien lac sap den sinh nhat." << endl;
             qlDanhBa.DanhSachSapSinhNhat();
             break;
-
         case 0:
             cout << "Tam biet!\n";
             break;
-
         default:
             cout << "Lua chon khong hop le!\n";
         }
