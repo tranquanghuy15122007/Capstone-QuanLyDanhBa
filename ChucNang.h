@@ -410,7 +410,7 @@ public:
 
 
     //Hien thi danh sach lien he tim kiem theo so dien thoai
-    void TimTheoSDT()
+    void TimTheoSoSDT()
     {
         string findPhone;
         cout << "Nhap so dien thoai can tim: ";

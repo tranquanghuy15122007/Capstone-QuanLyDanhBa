@@ -100,10 +100,40 @@ int main()
         case 5:
             qlDanhBa.LocTheoTenNhom();
             break;
+            
 
         case 6:
-            //Code Menu Tim Kiem. code xong xoa comment
+        {
+            int chonTK;
+            do
+            {
+                InTieuDe("MENU TIM KIEM");
+                cout << "[1]. Tim kiem theo ten" << endl;
+                cout << "[2]. Tim kiem theo SDT" << endl;
+                cout << "[3]. Lich su tim kiem" << endl;
+                cout << "[0]. Tro ve menu chinh" << endl;
+                cout << string(50, '=') << endl;
+                chonTK = NhapLuaChon();
+
+                switch (chonTK)
+                {
+                case 1:
+                    qlDanhBa.TimTheoTen();
+                    break;
+                case 2:
+                    qlDanhBa.TimTheoSoSDT();
+                    break;
+                case 3:
+                    qlDanhBa.HienThiLichSuTimKiem();
+                    break;
+                case 0:
+                    break;
+                default:
+                    cout << "Lua chon khong hop le!\n";
+                }
+            } while (chonTK != 0);
             break;
+        }
 
         case 7:
         {
