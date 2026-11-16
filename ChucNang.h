@@ -5,35 +5,17 @@
 #include <algorithm>
 #include <iomanip>
 #include <cctype>
+#include <fstream>
+#include <sstream>
 #include "date.h"
 #include "quanlydanhba.h"
+#include "HoTroInput.h"
 
 using namespace std;
 
 class ChucNang : public QuanlyDanhba
 {
 protected:
-    // tinh xem ten bat dau bang chu nao thi vao vector so may
-    int TinhIndex(string ten) {
-        size_t viTri = ten.rfind(' ');
-        string tenChinh = ten;
-        if (viTri != string::npos) {
-            tenChinh = ten.substr(viTri + 1);
-        }
-        if (tenChinh.empty()) {
-            return 0;
-        }
-
-        char c = tenChinh[0];
-        int index = 0;
-        if (c >= 'a' && c <= 'z') {
-            index = c - 'a';
-        }
-        else if (c >= 'A' && c <= 'Z') {
-            index = c - 'A';
-        }
-        return index;
-    }
 
     bool SDTHopLe(const string& phone) {
         if (phone.length() != 10 || phone[0] != '0')
@@ -70,43 +52,17 @@ protected:
     }
 
 public:
-    ChucNang(string _name = "", string _sdt = "", string _quanhe = "", Date _ngaysinh = Date(), string _ghichu = "")
-        : QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
-    }
-
-    // xoa ky tu xuong dong o cuoi va khoang trang o hai dau
-    string ChuanHoa(string s) {
-        while (!s.empty() && (s.back() == '\r' || s.back() == '\n')) {
-            s.pop_back();
-        }
-
-        size_t dau = s.find_first_not_of(" \t");
-
-        if (dau == string::npos) {
-            return "";
-        }
-
-        size_t cuoi = s.find_last_not_of(" \t");
-
-        return s.substr(dau, cuoi - dau + 1);
-    }
-
-    // doc 1 dong va chuan hoa
-    string DocDong() {
-        string s;
-        getline(cin, s);
-        return ChuanHoa(s);
-    }
+    ChucNang() {}
 
     // hoi yes/no, tra ve true neu yes, false neu no
     bool XacNhan(const string& cauHoi) {
         cout << cauHoi << " (yes/no): ";
-        string s = DocDong();
+        string s = DocDong(cin);
         transform(s.begin(), s.end(), s.begin(), ::tolower);
 
         while (s != "yes" && s != "no") {
             cout << "Lua chon khong hop le! Vui long nhap lai (yes/no): ";
-            s = DocDong();
+            s = DocDong(cin);
             transform(s.begin(), s.end(), s.begin(), ::tolower);
         }
         return s == "yes";
@@ -116,12 +72,12 @@ public:
     void Hienthisapxep() {
         string arrange;
         cout << "\nNhap cach hien thi (a-z hoac z-a): ";
-        arrange = DocDong();
+        arrange = DocDong(cin);
 
         while (arrange != "a-z" && arrange != "a-Z" && arrange != "A-z" && arrange != "A-Z" &&
             arrange != "z-a" && arrange != "z-A" && arrange != "Z-a" && arrange != "Z-A") {
             cout << "Lua chon khong hop le! Vui long nhap lai (a-z hoac z-a): ";
-            arrange = DocDong();
+            arrange = DocDong(cin);
         }
 
         if (arrange == "z-a" || arrange == "z-A" || arrange == "Z-a" || arrange == "Z-A")
@@ -135,12 +91,12 @@ public:
 
     // kiem tra trung ten
     // boQua: bo qua nguoi dang sua, neu khong khi sua "nguyen van a" thanh "nguyen van a" van bi bao trung
-    bool KiemTraTrungTen(string tenMoi, QuanlyDanhba* boQua = nullptr) {
+    bool KiemTraTrungTen(string tenMoi, Contact* boQua = nullptr) {
         string t = ChuanHoa(tenMoi);
         transform(t.begin(), t.end(), t.begin(), ::tolower);
 
         for (int i = 0; i < 26; i++) {
-            vector<QuanlyDanhba*>& nhom = getvector(i);
+            vector<Contact*>& nhom = getvector(i);
 
             for (size_t j = 0; j < nhom.size(); j++) {
                 string tenCu = ChuanHoa(nhom[j]->GetName());
@@ -155,10 +111,10 @@ public:
     }
 
     // kiem tra trung SDT (bo qua nguoi dang sua)
-    bool KiemTraTrungSDT(string sdtMoi, QuanlyDanhba* boQua = nullptr) {
+    bool KiemTraTrungSDT(string sdtMoi, Contact* boQua = nullptr) {
         string s = ChuanHoa(sdtMoi);
         for (int i = 0; i < 26; i++) {
-            vector<QuanlyDanhba*>& nhom = getvector(i);
+            vector<Contact*>& nhom = getvector(i);
             for (size_t j = 0; j < nhom.size(); j++) {
                 if (nhom[j] != boQua && ChuanHoa(nhom[j]->GetPhone()) == s) {
                     return true;
@@ -168,17 +124,83 @@ public:
         return false;
     }
 
+    // doc file csv vao danh ba
+    void docFileDanhBa(const string& danhba) {
+        ifstream file(danhba);
+        if (!file.is_open()) {
+            cout << "Khong the mo file: " << danhba << " (Hay kiem tra lai vi tri file csv trong thu muc goc project!)\n";
+            return;
+        }
+
+        string line;
+        while (getline(file, line)) {
+            if (line.empty()) {
+                continue;
+            }
+
+            stringstream ss(line);
+            string ten, sdt, quanhe, ngaysinhStr, ghichu;
+
+            // thu tu: ten, sdt, quan he, ngay sinh, ghi chu
+            getline(ss, ten, ',');
+            getline(ss, sdt, ',');
+            getline(ss, quanhe, ',');
+            getline(ss, ngaysinhStr, ',');
+            getline(ss, ghichu);
+
+            // xoa khoang trang thua va ky tu \r
+            ten = ChuanHoa(ten);
+            sdt = ChuanHoa(sdt);
+            quanhe = ChuanHoa(quanhe);
+            ngaysinhStr = ChuanHoa(ngaysinhStr);
+            ghichu = ChuanHoa(ghichu);
+
+            Date ngaysinh;
+            ngaysinh.FromString(ngaysinhStr);
+
+            // tao contact roi bo vao vector dung chu cai (dung lai TinhIndex)
+            Contact* newItem = new Contact(ten, sdt, quanhe, ngaysinh, ghichu);
+            getvector(TinhIndex(ten)).push_back(newItem);
+        }
+
+        file.close();
+        cout << "Load file vao class con thanh cong!\n\n";
+    }
+
+    // ghi lai toan bo danh ba ra file csv
+    void Capnhatfilekhithem(const string& danhba) {
+        ofstream file(danhba);
+        if (!file.is_open()) {
+            cout << "Khong the mo file de ghi: " << danhba << "\n";
+            return;
+        }
+
+        for (int i = 0; i < 26; i++) {
+            vector<Contact*>& nhom = getvector(i);
+            for (int j = 0; j < static_cast<int>(nhom.size()); j++) {
+                file << nhom[j]->GetName() << ","
+                    << nhom[j]->GetPhone() << ","
+                    << nhom[j]->GetRelationship() << ","
+                    << nhom[j]->GetBirthday().DateToString() << ","
+                    << nhom[j]->GetNote() << "\n";
+            }
+        }
+
+        file.close();
+        cout << "Da cap nhat va luu lai file CSV thanh cong!\n";
+    }
+
     // 1. Them contact
     void Them() {
         string name, phone, relationship, dateStr, note;
         Date d;
 
         cout << "Nhap ho ten: ";
-        name = DocDong();
+        name = DocDong(cin);
 
         while (!TenHopLe(name)) {
             cout << "Ten khong hop le! Nhap lai: ";
-            name = DocDong();
+            name = DocDong(cin);
         }
 
         if (KiemTraTrungTen(name)) {
@@ -186,7 +208,7 @@ public:
         }
 
         cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
-        phone = DocDong();
+        phone = DocDong(cin);
 
         while (!SDTHopLe(phone) || KiemTraTrungSDT(phone)) {
             if (SDTHopLe(phone) && KiemTraTrungSDT(phone)) {
@@ -195,28 +217,28 @@ public:
             else {
                 cout << "SDT khong hop le (phai du 10 so va bat dau bang 0 va chi duoc chua chu so)! Nhap lai: ";
             }
-            phone = DocDong();
+            phone = DocDong(cin);
         }
 
         cout << "Nhap quan he: ";
-        relationship = DocDong();
+        relationship = DocDong(cin);
         while (!QuanHeHopLe(relationship)) {
             cout << "Quan he khong hop le! Nhap lai: ";
-            relationship = DocDong();
+            relationship = DocDong(cin);
         }
 
         cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-        dateStr = DocDong();
+        dateStr = DocDong(cin);
         while (dateStr.empty() || !d.FromString(dateStr) || !d.IsValidDate()) {
             cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
-            dateStr = DocDong();
+            dateStr = DocDong(cin);
         }
 
         cout << "Nhap ghi chu: ";
-        note = DocDong();
+        note = DocDong(cin);
         while (!GhiChuHopLe(note)) {
             cout << "Nhap lai ghi chu: ";
-            note = DocDong();
+            note = DocDong(cin);
         }
 
         if (!XacNhan("Ban co chac chan muon them lien lac nay khong?")) {
@@ -224,9 +246,9 @@ public:
             return;
         }
 
-        QuanlyDanhba* p = new QuanlyDanhba(name, phone, relationship, d, note);
-        int index = TinhIndex(name);
-        getvector(index).push_back(p);
+        Contact* contact = new Contact(name, phone, relationship, d, note);
+        int index = TinhIndex(contact->GetName());
+        getvector(index).push_back(contact);
         cout << "Them contact vao danh ba thanh cong!\n";
         Hienthisapxep();
     }
@@ -250,19 +272,19 @@ public:
         string find_phone;
         string find_name_tmp;
 
-        vector<QuanlyDanhba*> danhsach; //danh sach phone tim duoc sau khi nhap ten/sdt can tim.
+        vector<Contact*> danhsach; //danh sach phone tim duoc sau khi nhap ten/sdt can tim.
 
         switch (luachon)
         {
         case 1:
             cout << "Nhap ten can xoa: ";
-            find_name = DocDong();
+            find_name = DocDong(cin);
 
             find_name_tmp = find_name;
             transform(find_name.begin(), find_name.end(), find_name.begin(), ::tolower);
             
             for (int i = 0; i < 26; i++) {
-                vector<QuanlyDanhba*>& nhom = getvector(i);
+                vector<Contact*>& nhom = getvector(i);
 
                 for (size_t j = 0; j < nhom.size(); j++) {
                     string name = ChuanHoa(nhom[j]->GetName());
@@ -313,10 +335,10 @@ public:
                 }
                 else
                 {
-                    QuanlyDanhba* it_xoa = danhsach[luachon_stt - 1];
+                    Contact* it_xoa = danhsach[luachon_stt - 1];
                     for (int i = 0; i < 26; i++)
                     {
-                        vector<QuanlyDanhba*>& nhom = getvector(i);
+                        vector<Contact*>& nhom = getvector(i);
 
                         for (size_t j = 0; j < nhom.size(); j++)
                         {
@@ -346,10 +368,10 @@ public:
             break;
         case 2:
             cout << "Nhap SDT can xoa: ";
-            find_phone = DocDong();
+            find_phone = DocDong(cin);
 
             for (int i = 0; i < 26; i++) {
-                vector<QuanlyDanhba*>& nhom = getvector(i);
+                vector<Contact*>& nhom = getvector(i);
 
                 for (size_t j = 0; j < nhom.size(); j++) {
                     string phone = ChuanHoa(nhom[j]->GetPhone());
@@ -399,10 +421,10 @@ public:
                 }
                 else
                 {
-                    QuanlyDanhba* it_xoa = danhsach[luachon_stt - 1];
+                    Contact* it_xoa = danhsach[luachon_stt - 1];
                     for (int i = 0; i < 26; i++)
                     {
-                        vector<QuanlyDanhba*>& nhom = getvector(i);
+                        vector<Contact*>& nhom = getvector(i);
 
                         for (size_t j = 0; j < nhom.size(); j++)
                         {
@@ -444,7 +466,7 @@ public:
         string sdt;
         do {
             cout << "Nhap SDT can sua (dung 10 so va bat dau bang 0): ";
-            sdt = DocDong();
+            sdt = DocDong(cin);
 
             if (!SDTHopLe(sdt)) {
                 cout << "SDT khong hop le!\n";
@@ -452,7 +474,7 @@ public:
         } while (!SDTHopLe(sdt));
 
         // tim nguoi co sdt nay
-        QuanlyDanhba* target = nullptr;
+        Contact* target = nullptr;
         int oldI = -1;
         int oldJ = -1;
         for (int i = 0; i < 26; i++) {
@@ -500,21 +522,21 @@ public:
             cout << "6. Sua tat ca\n";
             cout << "0. Hoan tat\n";
             cout << "Nhap lua chon: ";
-            chon = DocDong();
+            chon = DocDong(cin);
 
             while (chon != "0" && chon != "1" && chon != "2" && chon != "3" &&
                 chon != "4" && chon != "5" && chon != "6") {
                 cout << "Lua chon khong hop le! Vui long nhap lai (0-6): ";
-                chon = DocDong();
+                chon = DocDong(cin);
             }
 
             if (chon == "1" || chon == "6") {
                 cout << "Nhap ho ten: ";
-                ten = DocDong();
+                ten = DocDong(cin);
 
                 while (!TenHopLe(ten)) {
                     cout << "Ten khong hop le! Nhap lai: ";
-                    ten = DocDong();
+                    ten = DocDong(cin);
                 }
 
                 if (KiemTraTrungTen(ten, target)) {
@@ -526,7 +548,7 @@ public:
 
             if (chon == "2" || chon == "6") {
                 cout << "Nhap SDT moi (dung 10 so va bat dau bang 0): ";
-                sdtMoi = DocDong();
+                sdtMoi = DocDong(cin);
 
                 while (!SDTHopLe(sdtMoi) || KiemTraTrungSDT(sdtMoi, target)) {
                     if (SDTHopLe(sdtMoi) && KiemTraTrungSDT(sdtMoi, target)) {
@@ -535,7 +557,7 @@ public:
                     else {
                         cout << "SDT khong hop le! Nhap lai: ";
                     }
-                    sdtMoi = DocDong();
+                    sdtMoi = DocDong(cin);
                 }
                 target->SetPhone(sdtMoi);
                 daSua = true;
@@ -543,10 +565,10 @@ public:
 
             if (chon == "3" || chon == "6") {
                 cout << "Nhap quan he moi: ";
-                quanhe = DocDong();
+                quanhe = DocDong(cin);
                 while (!QuanHeHopLe(quanhe)) {
                     cout << "Quan he khong hop le! Nhap lai: ";
-                    quanhe = DocDong();
+                    quanhe = DocDong(cin);
                 }
                 target->SetRelationship(quanhe);
                 daSua = true;
@@ -555,10 +577,10 @@ public:
             if (chon == "4" || chon == "6") {
                 Date d;
                 cout << "Nhap ngay sinh moi (dd/mm/yyyy): ";
-                ngaysinhStr = DocDong();
+                ngaysinhStr = DocDong(cin);
                 while (ngaysinhStr.empty() || !d.FromString(ngaysinhStr) || !d.IsValidDate()) {
                     cout << "Ngay sinh khong hop le! Nhap lai: ";
-                    ngaysinhStr = DocDong();
+                    ngaysinhStr = DocDong(cin);
                 }
                 target->SetBirthday(d);
                 daSua = true;
@@ -566,10 +588,10 @@ public:
 
             if (chon == "5" || chon == "6") {
                 cout << "Nhap ghi chu moi: ";
-                ghichu = DocDong();
+                ghichu = DocDong(cin);
                 while (!GhiChuHopLe(ghichu)) {
                     cout << "Nhap lai ghi chu: ";
-                    ghichu = DocDong();
+                    ghichu = DocDong(cin);
                 }
                 target->SetNote(ghichu);
                 daSua = true;
@@ -607,11 +629,11 @@ public:
         }
 
         cout << "Nhap ten nhom quan he can loc: ";
-        findRelation = DocDong();
+        findRelation = DocDong(cin);
 
         while (!QuanHeHopLe(findRelation)) {
             cout << "Ten nhom quan he khong hop le! Nhap lai: ";
-            findRelation = DocDong();
+            findRelation = DocDong(cin);
         }
         cout << endl;
 
@@ -627,7 +649,7 @@ public:
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
 
         for (int i = 0; i < 26; i++) {
-            vector<QuanlyDanhba*>& nhom = getvector(i);
+            vector<Contact*>& nhom = getvector(i);
             for (size_t j = 0; j < nhom.size(); j++) {
                 string relationship = nhom[j]->GetRelationship();
                 transform(relationship.begin(), relationship.end(), relationship.begin(), ::tolower);
@@ -651,10 +673,10 @@ public:
             return;
         }
 
-        vector<QuanlyDanhba*> danhsach;
+        vector<Contact*> danhsach;
 
         for (int i = 0; i < 26; i++) {
-            vector<QuanlyDanhba*>& nhom = getvector(i);
+            vector<Contact*>& nhom = getvector(i);
             for (size_t j = 0; j < nhom.size(); j++) {
                 if (nhom[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam() >= 0) {
                     danhsach.push_back(nhom[j]);
@@ -668,7 +690,7 @@ public:
                 int ngay1 = danhsach[j]->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
                 int ngay2 = danhsach[j + 1]->GetBirthday().DemSoNgayDenSinhNhatTrongNam();
                 if (ngay1 > ngay2) {
-                    QuanlyDanhba* tam = danhsach[j];
+                    Contact* tam = danhsach[j];
                     danhsach[j] = danhsach[j + 1];
                     danhsach[j + 1] = tam;
                 }

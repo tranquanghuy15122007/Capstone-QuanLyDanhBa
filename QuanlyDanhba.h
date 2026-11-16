@@ -5,40 +5,41 @@
 #include <iomanip>
 #include <stdexcept>
 #include "date.h"
+#include "Contact.h"
 
 using namespace std;
 
 class QuanlyDanhba
 {
-private:
-    string Name;
-    string Phone;
-    string Relationship; // quanhe
-    Date Birthday;
-    string Note;
-
     // 26 vector tu a den z: mangDanhBa[0] la a, mangDanhBa[25] la z
-    vector<QuanlyDanhba*> mangDanhBa[26];// nếu hỏi sao ở đây không khái báo như trước thì nó dựa vào hàm tinhindex nhe
+    vector<Contact*> mangDanhBa[26];// nếu hỏi sao ở đây không khái báo như trước thì nó dựa vào hàm tinhindex nhe
+protected:
+    // tinh xem ten bat dau bang chu nao thi vao vector so may
+    int TinhIndex(string ten) {
+        size_t viTri = ten.rfind(' ');
+        string tenChinh = ten;
+        if (viTri != string::npos) {
+            tenChinh = ten.substr(viTri + 1);
+        }
+        if (tenChinh.empty()) {
+            return 0;
+        }
 
-public:
-    QuanlyDanhba(string _name = "", string _phone = "", string _Relationship = "", Date _birth = Date(), string _note = "")
-        : Name(_name), Phone(_phone), Relationship(_Relationship), Birthday(_birth), Note(_note)
-    {
+        char c = tenChinh[0];
+        int index = 0;
+        if (c >= 'a' && c <= 'z') {
+            index = c - 'a';
+        }
+        else if (c >= 'A' && c <= 'Z') {
+            index = c - 'A';
+        }
+        return index;
     }
-
-    const string& GetName() const { return Name; }
-    void SetName(const string& _name) { Name = _name; }
-    const string& GetPhone() const { return Phone; }
-    void SetPhone(const string& _phone) { Phone = _phone; }
-    const string& GetRelationship() const { return Relationship; }
-    void SetRelationship(const string& _Relationship) { Relationship = _Relationship; }
-    const string& GetNote() const { return Note; }
-    void SetNote(const string& _note) { Note = _note; }
-    const Date& GetBirthday() const { return Birthday; }
-    void SetBirthday(const Date& _birth) { Birthday = _birth; }
+public:
+    QuanlyDanhba(){}
 
     // tra ve vector thu index (0 den 25)
-    vector<QuanlyDanhba*>& getvector(int index) {
+    vector<Contact*>& getvector(int index) {
         if (index < 0 || index > 25) {
             throw out_of_range("Index phai tu 0 den 25!");
         }

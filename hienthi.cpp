@@ -4,15 +4,14 @@
 
 #include "date.h"
 #include "quanlydanhba.h"
-#include "HotroHienthiCSVFILE.h"
+#include "ChucNang.h"
 
 using namespace std;
 
 int main()
 {
    
-
-    HotroHienthi qlDanhBa;
+    ChucNang qlDanhBa;
 
     string tenFile = "danhba.csv";
 

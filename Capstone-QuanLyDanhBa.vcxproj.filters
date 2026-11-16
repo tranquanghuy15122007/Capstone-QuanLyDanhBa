@@ -21,10 +21,13 @@
     <ClInclude Include="Date.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HotroHienthiCSVFILE.h">
+    <ClInclude Include="ChucNang.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChucNang.h">
+    <ClInclude Include="Contact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HoTroInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

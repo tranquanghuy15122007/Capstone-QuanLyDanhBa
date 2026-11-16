@@ -139,8 +139,9 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Contact.h" />
     <ClInclude Include="Date.h" />
-    <ClInclude Include="HotroHienthiCSVFILE.h" />
+    <ClInclude Include="HoTroInput.h" />
     <ClInclude Include="QuanlyDanhba.h" />
     <ClInclude Include="ChucNang.h" />
   </ItemGroup>
