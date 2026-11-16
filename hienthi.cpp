@@ -65,7 +65,7 @@ int main()
         cout << "[3]. Sua lien lac" << endl;
         cout << "[4]. Xoa lien lac" << endl;
         cout << "[5]. Loc theo nhom quan he" << endl;
-        cout << "[6]. Danh sach sap sinh nhat" << endl;
+        cout << "[6]. Tim kiem lien lac" << endl;
         cout << "[7]. Danh ba yeu thich" << endl;
         cout << "[8]. So khan cap (phim tat)" << endl;
         cout << "[9]. Danh sach lien lac sap den sinh nhat." << endl;
@@ -123,7 +123,7 @@ int main()
             break;
 
         case 6:
-            qlDanhBa.DanhSachSapSinhNhat();
+            //Code Menu Tim Kiem. code xong xoa comment
             break;
 
         case 7:

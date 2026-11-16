@@ -7,12 +7,16 @@
 #include <cctype>
 #include "date.h"
 #include "quanlydanhba.h"
+#include "GetLastName.h"
 
 using namespace std;
 
 class ChucNang : public QuanlyDanhba
 {
 protected:
+    // Luu noi dung cac lan tim kiem theo ten và SST.
+    vector<string> lichSuTimKiem;
+
     // tinh xem ten bat dau bang chu nao thi vao vector so may
     int TinhIndex(string ten) {
         size_t viTri = ten.rfind(' ');
@@ -413,6 +417,110 @@ public:
         cout << "Sua thong tin contact thanh cong!\n";
         Hienthisapxep();
         return true;
+    }
+
+    //Hien thi danh sach lien he tim kiem theo ten
+    void TimTheoTen()
+    {
+        string findName;
+        cout << "Nhap ten lien he can tim: ";
+        getline(cin, findName);
+        cout << endl;
+
+        string keyword = findName;
+        transform(keyword.begin(), keyword.end(), keyword.begin(), ::tolower);
+        lichSuTimKiem.push_back("Ten: " + keyword);
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+        cout << "| " << left << setw(24) << "Ten"
+            << " | " << setw(13) << "SDT"
+            << " | " << setw(15) << "Quan He"
+            << " | " << setw(15) << "Ngay Sinh"
+            << " | " << setw(34) << "Ghi Chu" << " |\n";
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = getvector(idx);
+            for (const auto& nguoi : nhom) {
+
+                string name = GetLastName(nguoi->GetName());
+                transform(name.begin(), name.end(), name.begin(), ::tolower);
+
+                transform(findName.begin(), findName.end(), findName.begin(), ::tolower);
+
+                if (name.find(findName) != string::npos)
+                {
+                    cout << "| " << left << setw(24) << nguoi->GetName()
+                        << " | " << setw(13) << nguoi->GetPhone()
+                        << " | " << setw(15) << nguoi->GetRelationship()
+                        << " | " << setw(15) << nguoi->GetBirthday().DateToString()
+                        << " | " << setw(34) << nguoi->GetNote() << " |\n";
+                }
+
+            }
+        }
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
+
+
+    //Hien thi danh sach lien he tim kiem theo so dien thoai
+    void TimTheoSDT()
+    {
+        string findPhone;
+        cout << "Nhap so dien thoai can tim: ";
+        getline(cin, findPhone);
+        cout << endl;
+        lichSuTimKiem.push_back("SDT: " + findPhone);
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+        cout << "| " << left << setw(24) << "Ten"
+            << " | " << setw(13) << "SDT"
+            << " | " << setw(15) << "Quan He"
+            << " | " << setw(15) << "Ngay Sinh"
+            << " | " << setw(34) << "Ghi Chu" << " |\n";
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+
+        for (int idx = 0; idx < 26; idx++) {
+            vector<QuanlyDanhba*>& nhom = getvector(idx);
+            for (const auto& nguoi : nhom) {
+
+                string phone = nguoi->GetPhone();
+                transform(phone.begin(), phone.end(), phone.begin(), ::tolower);
+
+                transform(findPhone.begin(), findPhone.end(), findPhone.begin(), ::tolower);
+
+                if (phone.find(findPhone) != string::npos)
+                {
+                    cout << "| " << left << setw(24) << nguoi->GetName()
+                        << " | " << setw(13) << nguoi->GetPhone()
+                        << " | " << setw(15) << nguoi->GetRelationship()
+                        << " | " << setw(15) << nguoi->GetBirthday().DateToString()
+                        << " | " << setw(34) << nguoi->GetNote() << " |\n";
+                }
+
+            }
+        }
+        cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
+
+
+    // Hien thi lich su tim kiem tu moi nhat den cu nhat.
+    void HienThiLichSuTimKiem()
+    {
+        if (lichSuTimKiem.empty())
+        {
+            cout << "Chua co lich su tim kiem!\n";
+            return;
+        }
+
+        cout << "+" << string(32, '-') << "+\n";
+        cout << "| " << left << setw(30) << "Lich su tim kiem" << " |\n";
+        cout << "+" << string(32, '-') << "+\n";
+
+        for (int i = (int)lichSuTimKiem.size() - 1; i >= 0; i--)
+        {
+            cout << "| " << left << setw(30) << lichSuTimKiem[i] << " |\n";
+        }
+
+        cout << "+" << string(32, '-') << "+\n";
     }
 
     // Loc theo nhom quan he
