@@ -357,7 +357,6 @@ public:
                             }
                         }
                     }
-                    delete it_xoa;
                 }
             }
             else
