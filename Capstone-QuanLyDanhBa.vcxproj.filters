@@ -27,6 +27,15 @@
     <ClInclude Include="ChucNang.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DanhBaYeuThich.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GetLastName.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteDB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="hienthi.cpp">
@@ -35,5 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="danhba.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="khancap.txt" />
+    <Text Include="yeuthich.txt" />
   </ItemGroup>
 </Project>
