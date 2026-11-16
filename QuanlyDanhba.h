@@ -17,8 +17,43 @@ private:
     Date Birthday;
     string Note;
 
+protected:
     // 26 vector tu a den z: mangDanhBa[0] la a, mangDanhBa[25] la z
     vector<QuanlyDanhba*> mangDanhBa[26];// nếu hỏi sao ở đây không khái báo như trước thì nó dựa vào hàm tinhindex nhe
+
+    static bool SDTHopLe(const string& phone) {
+        if (phone.length() != 10 || phone[0] != '0')
+            return false;
+
+        for (char c : phone) {
+            if (!isdigit(static_cast<unsigned char>(c)))
+                return false;
+        }
+
+        return true;
+    }
+
+    // chi cho phep chu cai (khong dau) va khoang trang
+    static bool ChiChuaChuVaKhoangTrang(const string& s) {
+        for (char c : s) {
+            if (!isalpha(static_cast<unsigned char>(c)) && c != ' ')
+                return false;
+        }
+
+        return true;
+    }
+
+    static bool TenHopLe(const string& ten) {
+        return ten.length() >= 2 && ChiChuaChuVaKhoangTrang(ten);
+    }
+
+    static bool QuanHeHopLe(const string& qh) {
+        return qh.length() >= 2 && ChiChuaChuVaKhoangTrang(qh);
+    }
+
+    static bool GhiChuHopLe(const string& note) {
+        return !note.empty();
+    }
 
 public:
     QuanlyDanhba(string _name = "", string _phone = "", string _Relationship = "", Date _birth = Date(), string _note = "")
@@ -101,5 +136,56 @@ public:
             }
         }
         cout << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+" << string(17, '-') << "+" << string(36, '-') << "+\n";
+    }
+
+    friend istream& operator>>(istream& is, QuanlyDanhba& danhba)
+    {
+        string name, phone, relationship, dateStr, note;
+        Date d;
+
+        cout << "Nhap ho ten: ";
+        getline(is, name);
+
+        while (!TenHopLe(name)) {
+            cout << "Ten khong hop le! Nhap lai: ";
+            getline(is, name);
+        }
+
+        cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
+        getline(is, phone);
+
+        while (!SDTHopLe(phone)) {
+            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0 va chi duoc chua chu so)! Nhap lai: ";
+            getline(is, phone);
+        }
+
+        cout << "Nhap quan he: ";
+        getline(is, relationship);
+        while (!QuanHeHopLe(relationship)) {
+            cout << "Quan he khong hop le! Nhap lai: ";
+            getline(is, relationship);
+        }
+
+        cout << "Nhap ngay sinh (dd/mm/yyyy): ";
+        getline(is, dateStr);
+        while (dateStr.empty() || !d.FromStringNoWarning(dateStr) || !d.IsValidDateNoWarning()) {
+            cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
+            getline(is, dateStr);
+        }
+
+        cout << "Nhap ghi chu: ";
+        getline(is, note);
+        while (!GhiChuHopLe(note)) {
+            cout << "Nhap lai ghi chu: ";
+            getline(is, note);
+        }
+
+        danhba.SetName(name);
+        danhba.SetPhone(phone);
+        danhba.SetRelationship(name);
+        danhba.SetBirthday(d);
+        danhba.SetNote(note);
+
+        return is;
     }
 };

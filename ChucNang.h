@@ -39,40 +39,6 @@ protected:
         return index;
     }
 
-    bool SDTHopLe(const string& phone) {
-        if (phone.length() != 10 || phone[0] != '0')
-            return false;
-
-        for (char c : phone) {
-            if (!isdigit(static_cast<unsigned char>(c)))
-                return false;
-        }
-
-        return true;
-    }
-
-    // chi cho phep chu cai (khong dau) va khoang trang
-    bool ChiChuaChuVaKhoangTrang(const string& s) {
-        for (char c : s) {
-            if (!isalpha(static_cast<unsigned char>(c)) && c != ' ')
-                return false;
-        }
-
-        return true;
-    }
-
-    bool TenHopLe(const string& ten) {
-        return ten.length() >= 2 && ChiChuaChuVaKhoangTrang(ten);
-    }
-
-    bool QuanHeHopLe(const string& qh) {
-        return qh.length() >= 2 && ChiChuaChuVaKhoangTrang(qh);
-    }
-
-    bool GhiChuHopLe(const string& note) {
-        return !note.empty();
-    }
-
 public:
     ChucNang(string _name = "", string _sdt = "", string _quanhe = "", Date _ngaysinh = Date(), string _ghichu = "")
         : QuanlyDanhba(_name, _sdt, _quanhe, _ngaysinh, _ghichu) {
@@ -174,53 +140,19 @@ public:
 
     // 1. Them contact
     void Them() {
-        string name, phone, relationship, dateStr, note;
-        Date d;
+        QuanlyDanhba* p = new QuanlyDanhba();
+        cin >> *p;
 
-        cout << "Nhap ho ten: ";
-        name = DocDong();
-
-        while (!TenHopLe(name)) {
-            cout << "Ten khong hop le! Nhap lai: ";
-            name = DocDong();
-        }
-
-        if (KiemTraTrungTen(name)) {
+        if (KiemTraTrungTen(p->GetName())) {
             cout << "Ten ban da trung ten trong danh sach (luu y co the trung ten nhung sdt khong duoc giong nhau)" << endl;
         }
 
-        cout << "Nhap SDT (dung 10 so va bat dau bang 0): ";
-        phone = DocDong();
-
-        while (!SDTHopLe(phone) || KiemTraTrungSDT(phone)) {
-            if (SDTHopLe(phone) && KiemTraTrungSDT(phone)) {
-                cout << "Loi: SDT nay da ton tai trong danh sach! Vui long nhap lai SDT khac: ";
-            }
-            else {
-                cout << "SDT khong hop le (phai du 10 so va bat dau bang 0 va chi duoc chua chu so)! Nhap lai: ";
-            }
+        while (KiemTraTrungSDT(p->GetPhone()))
+        {
+            string phone;
+            cout << "Loi: SDT nay da ton tai trong danh sach! Vui long nhap lai SDT khac: ";
             phone = DocDong();
-        }
-
-        cout << "Nhap quan he: ";
-        relationship = DocDong();
-        while (!QuanHeHopLe(relationship)) {
-            cout << "Quan he khong hop le! Nhap lai: ";
-            relationship = DocDong();
-        }
-
-        cout << "Nhap ngay sinh (dd/mm/yyyy): ";
-        dateStr = DocDong();
-        while (dateStr.empty() || !d.FromString(dateStr) || !d.IsValidDate()) {
-            cout << "Ngay sinh khong hop le hoac sai dinh dang! Nhap lai: ";
-            dateStr = DocDong();
-        }
-
-        cout << "Nhap ghi chu: ";
-        note = DocDong();
-        while (!GhiChuHopLe(note)) {
-            cout << "Nhap lai ghi chu: ";
-            note = DocDong();
+            p->SetPhone(phone);
         }
 
         if (!XacNhan("Ban co chac chan muon them lien lac nay khong?")) {
@@ -228,8 +160,7 @@ public:
             return;
         }
 
-        QuanlyDanhba* p = new QuanlyDanhba(name, phone, relationship, d, note);
-        int index = TinhIndex(name);
+        int index = TinhIndex(p->GetName());
         getvector(index).push_back(p);
         cout << "Them contact vao danh ba thanh cong!\n";
         Hienthisapxep();

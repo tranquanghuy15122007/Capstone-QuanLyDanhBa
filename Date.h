@@ -140,6 +140,28 @@ public:
 		return true;
 	}
 
+	bool FromStringNoWarning(const string& str)
+	{
+		stringstream ss(str);
+		char c1, c2;
+		int d, m, y;
+		if (!(ss >> d >> c1 >> m >> c2 >> y) || c1 != '/' || c2 != '/')
+		{
+			return false;
+		}
+
+		ss >> ws; // bo qua khoang trang
+		if (!ss.eof()) // con chu thua phia sau year
+		{
+			return false;
+		}
+
+		Day = d;
+		Month = m;
+		Year = y;
+		return true;
+	}
+
 	bool operator<(const Date& d) const
 	{
 		if (Year != d.Year)
