@@ -9,6 +9,7 @@
 #include "HotroHienthiCSVFILE.h"
 #include "NoteDB.h"
 #include "DanhBaYeuThich.h"
+#include "GroupAndBlacklist.h"
 
 using namespace std;
 
@@ -40,19 +41,24 @@ int main()
 {
    
 
-    // DanhBaYeuThich la lop con cuoi cung (QuanlyDanhba -> ChucNang -> HotroHienthi -> NoteDB -> DanhBaYeuThich)
-    // -> 1 doi tuong dung duoc ca chuc nang danh ba, yeu thich va khan cap tren CUNG 1 danh ba
-    DanhBaYeuThich qlDanhBa;
+    // GroupAndBlacklist la lop con cuoi cung
+    // (QuanlyDanhba -> ChucNang -> HotroHienthi -> NoteDB -> DanhBaYeuThich -> GroupAndBlacklist)
+    // -> 1 doi tuong dung duoc tat ca chuc nang tren CUNG 1 danh ba
+    GroupAndBlacklist qlDanhBa;
 
     string tenFile = "danhba.csv";
     string fileYeuThich = "yeuthich.txt";
     string fileKhanCap = "khancap.txt";
+    string fileNhom = "nhom.txt";
+    string fileChuongGa = "chuongga.txt";
 
     cout << "Dang tien hanh doc file: " << tenFile << "...\n\n";
 
     qlDanhBa.docFileDanhBa(tenFile);
     qlDanhBa.DocYeuThich(fileYeuThich);
     qlDanhBa.DocKhanCap(fileKhanCap);
+    qlDanhBa.DocNhom(fileNhom);
+    qlDanhBa.DocChuongGa(fileChuongGa);
 
     qlDanhBa.Display();
     int luachon;
@@ -69,6 +75,8 @@ int main()
         cout << "[7]. Danh ba yeu thich" << endl;
         cout << "[8]. So khan cap (phim tat)" << endl;
         cout << "[9]. Danh sach lien lac sap den sinh nhat." << endl;
+        cout << "[10]. Quan ly nhom (group)" << endl;
+        cout << "[11]. Chuong ga (blacklist)" << endl;
         cout << "[0]. Thoat" << endl;
         cout << string(50, '=') << endl;
 
@@ -190,6 +198,88 @@ int main()
         case 9:
             cout << "Danh sach lien lac sap den sinh nhat." << endl;
             qlDanhBa.DanhSachSapSinhNhat();
+            break;
+        case 10:
+            int chonNhom;
+            do
+            {
+                InTieuDe("MENU QUAN LY NHOM");
+                cout << "[1]. Xem danh sach nhom" << endl;
+                cout << "[2]. Xem thanh vien 1 nhom" << endl;
+                cout << "[3]. Tao nhom moi" << endl;
+                cout << "[4]. Them lien lac vao nhom" << endl;
+                cout << "[5]. Xoa lien lac khoi nhom" << endl;
+                cout << "[6]. Xoa nhom" << endl;
+                cout << "[0]. Tro ve menu chinh" << endl;
+                cout << string(50, '=') << endl;
+                chonNhom = NhapLuaChon();
+
+                switch (chonNhom)
+                {
+                case 1:
+                    qlDanhBa.HienThiDanhSachNhom();
+                    break;
+                case 2:
+                    qlDanhBa.HienThiThanhVienNhom();
+                    break;
+                case 3:
+                    qlDanhBa.TaoNhom();
+                    qlDanhBa.LuuNhom(fileNhom);
+                    break;
+                case 4:
+                    qlDanhBa.ThemVaoNhom();
+                    qlDanhBa.LuuNhom(fileNhom);
+                    break;
+                case 5:
+                    qlDanhBa.XoaKhoiNhom();
+                    qlDanhBa.LuuNhom(fileNhom);
+                    break;
+                case 6:
+                    qlDanhBa.XoaNhom();
+                    qlDanhBa.LuuNhom(fileNhom);
+                    break;
+                case 0:
+                    break;
+                default:
+                    cout << "Lua chon khong hop le!\n";
+                }
+            } while (chonNhom != 0);
+            break;
+        case 11:
+            int chonCG;
+            do
+            {
+                InTieuDe("MENU CHUONG GA (BLACKLIST)");
+                cout << "[1]. Xem chuong ga" << endl;
+                cout << "[2]. Cho 1 nguoi ra chuong ga" << endl;
+                cout << "[3]. Tha 1 nguoi khoi chuong ga" << endl;
+                cout << "[4]. Gia lap cuoc goi den" << endl;
+                cout << "[0]. Tro ve menu chinh" << endl;
+                cout << string(50, '=') << endl;
+                chonCG = NhapLuaChon();
+
+                switch (chonCG)
+                {
+                case 1:
+                    qlDanhBa.HienThiChuongGa();
+                    break;
+                case 2:
+                    qlDanhBa.ChoRaChuongGa();
+                    qlDanhBa.LuuChuongGa(fileChuongGa);
+                    break;
+                case 3:
+                    qlDanhBa.ThaKhoiChuongGa();
+                    qlDanhBa.LuuChuongGa(fileChuongGa);
+                    break;
+                case 4:
+                    qlDanhBa.GiaLapCuocGoiDen();
+                    break;
+                case 0:
+                    break;
+                default:
+                    cout << "Lua chon khong hop le!\n";
+                }
+            } while (chonCG != 0);
             break;
         case 0:
             cout << "Tam biet!\n";
