@@ -1,75 +1,55 @@
 #pragma once
 #include "DanhBaYeuThich.h"
-#include <map>
+
+struct Nhom
+{
+    string ten;
+    vector<string> dsSDT;
+};
 
 class GroupAndBlacklist : public DanhBaYeuThich
 {
 private:
-    map<string, vector<string>> dsNhom;
+    vector<Nhom> dsNhom;
+    vector<string> dsChan;
 
-    vector<string> chuongGa;
-
-    static string ChuThuong(string s) {
-        transform(s.begin(), s.end(), s.begin(), ::tolower);
+    string ChuThuong(string s) {
+        for (int i = 0; i < (int)s.length(); i++)
+            s[i] = tolower(s[i]);
         return s;
     }
 
-    // tim nhom khong phan biet hoa thuong
-    map<string, vector<string>>::iterator TimNhom(const string& ten) {
-        string t = ChuThuong(ChuanHoa(ten));
-        for (auto it = dsNhom.begin(); it != dsNhom.end(); it++)
-            if (ChuThuong(it->first) == t)
-                return it;
-        return dsNhom.end();
+    // tim nhom khong phan biet hoa thuong, khong co thi tra ve -1
+    int TimNhom(string ten) {
+        ten = ChuThuong(ChuanHoa(ten));
+        for (int i = 0; i < (int)dsNhom.size(); i++) {
+            if (ChuThuong(dsNhom[i].ten) == ten)
+                return i;
+        }
+        return -1;
     }
 
-    // go rong -> huy
-    map<string, vector<string>>::iterator NhapTenNhomDaCo() {
+    // hien danh sach roi cho nguoi dung chon 1 nhom, go rong hoac sai ten thi tra ve -1
+    int ChonNhom() {
         if (dsNhom.empty()) {
             cout << "Chua co nhom nao! Hay tao nhom truoc.\n";
-            return dsNhom.end();
+            return -1;
         }
         HienThiDanhSachNhom();
         cout << "Nhap ten nhom (de trong de huy): ";
         string ten = DocDong(cin);
-        if (ten.empty()) return dsNhom.end();
+        if (ten.empty())
+            return -1;
 
-        auto it = TimNhom(ten);
-        if (it == dsNhom.end())
+        int viTri = TimNhom(ten);
+        if (viTri == -1)
             cout << "Khong co nhom \"" << ten << "\"!\n";
-        return it;
-    }
-
-    string NhapSDT(const string& loiNhac) {
-        cout << loiNhac;
-        string sdt = DocDong(cin);
-        while (!SDTHopLe(sdt)) {
-            cout << "SDT khong hop le (phai du 10 so va bat dau bang 0)! Nhap lai: ";
-            sdt = DocDong(cin);
-        }
-        return sdt;
-    }
-
-    void InVien() {
-        cout << "+" << string(6, '-') << "+" << string(26, '-') << "+" << string(15, '-') << "+" << string(17, '-') << "+\n";
-    }
-
-    void InBangSDT(const vector<string>& ds) {
-        InVien();
-        cout << "| " << left << setw(4) << "STT" << " | " << setw(24) << "Ten"
-             << " | " << setw(13) << "SDT" << " | " << setw(15) << "Quan he" << " |\n";
-        InVien();
-        for (int i = 0; i < (int)ds.size(); i++) {
-            QuanlyDanhba* p = TimTheoSDT(ds[i]);
-            cout << "| " << setw(4) << i + 1 << " | "
-                 << setw(24) << (p ? p->GetName() : "(khong co trong danh ba)")
-                 << " | " << setw(13) << ds[i]
-                 << " | " << setw(15) << (p ? p->GetRelationship() : "") << " |\n";
-        }
-        InVien();
+        return viTri;
     }
 
 public:
+    // ===== NHOM =====
+
     void TaoNhom() {
         cout << "Nhap ten nhom moi: ";
         string ten = DocDong(cin);
@@ -77,53 +57,57 @@ public:
             cout << "Ten nhom chi duoc chua chu (khong dau) va khoang trang! Nhap lai: ";
             ten = DocDong(cin);
         }
-        if (TimNhom(ten) != dsNhom.end()) {
+        if (TimNhom(ten) != -1) {
             cout << "Nhom \"" << ten << "\" da ton tai!\n";
             return;
         }
-        dsNhom[ten] = vector<string>();
+        Nhom n;
+        n.ten = ten;
+        dsNhom.push_back(n);
         cout << "Da tao nhom \"" << ten << "\"!\n";
     }
 
     void XoaNhom() {
-        auto it = NhapTenNhomDaCo();
-        if (it == dsNhom.end()) return;
+        int viTri = ChonNhom();
+        if (viTri == -1)
+            return;
 
-        if (!XacNhan("Ban co chac muon xoa nhom \"" + it->first + "\" khong? (lien lac van con trong danh ba)")) {
+        if (!XacNhan("Ban co chac muon xoa nhom \"" + dsNhom[viTri].ten + "\" khong? (lien lac van con trong danh ba)")) {
             cout << "Da huy thao tac xoa nhom.\n";
             return;
         }
-        cout << "Da xoa nhom \"" << it->first << "\"!\n";
-        dsNhom.erase(it);
+        cout << "Da xoa nhom \"" << dsNhom[viTri].ten << "\"!\n";
+        dsNhom.erase(dsNhom.begin() + viTri);
     }
 
     void ThemVaoNhom() {
-        auto it = NhapTenNhomDaCo();
-        if (it == dsNhom.end()) return;
+        int viTri = ChonNhom();
+        if (viTri == -1)
+            return;
 
         string sdt = NhapSDT("Nhap SDT muon them vao nhom: ");
         QuanlyDanhba* p = TimTheoSDT(sdt);
-        if (p == nullptr) {
+        if (p == NULL) {
             cout << "SDT khong co trong danh ba!\n";
             return;
         }
-        vector<string>& tv = it->second;
-        if (find(tv.begin(), tv.end(), sdt) != tv.end()) {
+        if (TimViTri(dsNhom[viTri].dsSDT, sdt) != -1) {
             cout << p->GetName() << " da o trong nhom nay roi!\n";
             return;
         }
         if (LaChan(sdt))
-            cout << "Luu y: " << p->GetName() << " dang bi nhot trong chuong ga.\n";
+            cout << "Luu y: " << p->GetName() << " dang nam trong danh sach chan.\n";
 
-        tv.push_back(sdt);
-        cout << "Da them " << p->GetName() << " vao nhom \"" << it->first << "\"!\n";
+        dsNhom[viTri].dsSDT.push_back(sdt);
+        cout << "Da them " << p->GetName() << " vao nhom \"" << dsNhom[viTri].ten << "\"!\n";
     }
 
     void XoaKhoiNhom() {
-        auto it = NhapTenNhomDaCo();
-        if (it == dsNhom.end()) return;
+        int viTri = ChonNhom();
+        if (viTri == -1)
+            return;
 
-        vector<string>& tv = it->second;
+        vector<string>& tv = dsNhom[viTri].dsSDT;
         if (tv.empty()) {
             cout << "Nhom nay chua co thanh vien!\n";
             return;
@@ -131,13 +115,13 @@ public:
         InBangSDT(tv);
 
         string sdt = NhapSDT("Nhap SDT muon xoa khoi nhom: ");
-        auto viTri = find(tv.begin(), tv.end(), sdt);
-        if (viTri == tv.end()) {
+        int k = TimViTri(tv, sdt);
+        if (k == -1) {
             cout << "SDT nay khong co trong nhom!\n";
             return;
         }
-        tv.erase(viTri);
-        cout << "Da xoa " << sdt << " khoi nhom \"" << it->first << "\"!\n";
+        tv.erase(tv.begin() + k);
+        cout << "Da xoa " << sdt << " khoi nhom \"" << dsNhom[viTri].ten << "\"!\n";
     }
 
     void HienThiDanhSachNhom() {
@@ -146,125 +130,119 @@ public:
             cout << "(trong)\n";
             return;
         }
-        int stt = 1;
-        for (auto it = dsNhom.begin(); it != dsNhom.end(); it++, stt++)
-            cout << stt << ". " << it->first << " (" << it->second.size() << " thanh vien)\n";
+        for (int i = 0; i < (int)dsNhom.size(); i++)
+            cout << i + 1 << ". " << dsNhom[i].ten << " (" << dsNhom[i].dsSDT.size() << " thanh vien)\n";
     }
 
     void HienThiThanhVienNhom() {
-        auto it = NhapTenNhomDaCo();
-        if (it == dsNhom.end()) return;
-
-        cout << "\n===== NHOM: " << it->first << " =====\n";
-        if (it->second.empty()) {
-            cout << "(chua co thanh vien)\n";
+        int viTri = ChonNhom();
+        if (viTri == -1)
             return;
-        }
-        InBangSDT(it->second);
+
+        cout << "\n===== NHOM: " << dsNhom[viTri].ten << " =====\n";
+        if (dsNhom[viTri].dsSDT.empty())
+            cout << "(chua co thanh vien)\n";
+        else
+            InBangSDT(dsNhom[viTri].dsSDT);
     }
 
     // file nhom.txt, moi dong: tenNhom,sdt1,sdt2,...
     void LuuNhom(string tenFile) {
         ofstream file(tenFile);
-        for (auto it = dsNhom.begin(); it != dsNhom.end(); it++) {
-            file << it->first;
-            for (string sdt : it->second)
-                file << "," << sdt;
+        for (int i = 0; i < (int)dsNhom.size(); i++) {
+            file << dsNhom[i].ten;
+            for (int j = 0; j < (int)dsNhom[i].dsSDT.size(); j++)
+                file << "," << dsNhom[i].dsSDT[j];
             file << "\n";
         }
     }
 
     void DocNhom(string tenFile) {
         ifstream file(tenFile);
-        string line, ten, sdt;
+        string line, sdt;
         dsNhom.clear();
         while (getline(file, line)) {
             stringstream ss(line);
-            getline(ss, ten, ',');
-            ten = ChuanHoa(ten);
-            if (ten.empty()) continue;
+            Nhom n;
+            getline(ss, n.ten, ',');
+            n.ten = ChuanHoa(n.ten);
+            if (n.ten.empty())
+                continue;
 
-            vector<string>& tv = dsNhom[ten];
             while (getline(ss, sdt, ',')) {
                 sdt = ChuanHoa(sdt);
-                if (!sdt.empty()) tv.push_back(sdt);
+                if (!sdt.empty())
+                    n.dsSDT.push_back(sdt);
             }
+            dsNhom.push_back(n);
         }
     }
 
-    bool LaChan(const string& sdt) {
-        return find(chuongGa.begin(), chuongGa.end(), sdt) != chuongGa.end();
+    // ===== DANH SACH CHAN =====
+
+    bool LaChan(string sdt) {
+        return TimViTri(dsChan, sdt) != -1;
     }
 
-    // cho phep chan ca so la khong co trong danh ba (vd so spam)
-    void ChoRaChuongGa() {
-        string sdt = NhapSDT("Nhap SDT muon cho ra chuong ga: ");
+    // cho phep chan ca so khong co trong danh ba (vd so spam)
+    void ThemVaoDanhSachChan() {
+        string sdt = NhapSDT("Nhap SDT muon chan: ");
         if (LaChan(sdt)) {
-            cout << "SDT nay da o trong chuong ga roi!\n";
+            cout << "SDT nay da co trong danh sach chan!\n";
             return;
         }
 
         QuanlyDanhba* p = TimTheoSDT(sdt);
-        string ten = p ? p->GetName() : sdt;
-        if (!XacNhan("Cho " + ten + " ra chuong ga?")) {
+        string ten = (p != NULL) ? p->GetName() : sdt;
+        if (!XacNhan("Ban co chac muon chan " + ten + " khong?")) {
             cout << "Da huy.\n";
             return;
         }
-        chuongGa.push_back(sdt);
-        cout << "Da cho " << ten << " ra chuong ga! Tu gio se khong nhan cuoc goi tu so nay.\n";
+        dsChan.push_back(sdt);
+        cout << "Da chan " << ten << "! Tu gio se khong nhan cuoc goi tu so nay.\n";
     }
 
-    void ThaKhoiChuongGa() {
-        if (chuongGa.empty()) {
-            cout << "Chuong ga dang trong!\n";
+    void XoaKhoiDanhSachChan() {
+        if (dsChan.empty()) {
+            cout << "Danh sach chan dang trong!\n";
             return;
         }
-        HienThiChuongGa();
+        HienThiDanhSachChan();
 
-        string sdt = NhapSDT("Nhap SDT muon tha ra: ");
-        auto it = find(chuongGa.begin(), chuongGa.end(), sdt);
-        if (it == chuongGa.end()) {
-            cout << "SDT nay khong co trong chuong ga!\n";
+        string sdt = NhapSDT("Nhap SDT muon bo chan: ");
+        int viTri = TimViTri(dsChan, sdt);
+        if (viTri == -1) {
+            cout << "SDT nay khong co trong danh sach chan!\n";
             return;
         }
-        chuongGa.erase(it);
-        cout << "Da tha " << sdt << " khoi chuong ga!\n";
+        dsChan.erase(dsChan.begin() + viTri);
+        cout << "Da bo chan " << sdt << "!\n";
     }
 
-    void HienThiChuongGa() {
-        cout << "\n===== CHUONG GA (BLACKLIST) =====\n";
-        if (chuongGa.empty()) {
+    void HienThiDanhSachChan() {
+        cout << "\n===== DANH SACH CHAN (BLACKLIST) =====\n";
+        if (dsChan.empty())
             cout << "(trong)\n";
-            return;
-        }
-        InBangSDT(chuongGa);
+        else
+            InBangSDT(dsChan);
     }
 
     void GiaLapCuocGoiDen() {
         string sdt = NhapSDT("Nhap SDT dang goi den: ");
         QuanlyDanhba* p = TimTheoSDT(sdt);
-        string ten = p ? p->GetName() + " (" + sdt + ")" : sdt;
+        string ten = (p != NULL) ? p->GetName() + " (" + sdt + ")" : sdt;
 
         if (LaChan(sdt))
-            cout << "Da chan cuoc goi tu " << ten << " - nguoi nay dang o chuong ga!\n";
+            cout << "Da chan cuoc goi tu " << ten << " - so nay nam trong danh sach chan!\n";
         else
             cout << "Reng reng... " << ten << " dang goi den.\n";
     }
 
-    // file chuongga.txt, moi dong 1 SDT
-    void LuuChuongGa(string tenFile) {
-        ofstream file(tenFile);
-        for (string sdt : chuongGa)
-            file << sdt << "\n";
+    void LuuDanhSachChan(string tenFile) {
+        GhiFile(tenFile, dsChan);
     }
 
-    void DocChuongGa(string tenFile) {
-        ifstream file(tenFile);
-        string sdt;
-        chuongGa.clear();
-        while (getline(file, sdt)) {
-            sdt = ChuanHoa(sdt);
-            if (!sdt.empty() && !LaChan(sdt)) chuongGa.push_back(sdt);
-        }
+    void DocDanhSachChan(string tenFile) {
+        DocFile(tenFile, dsChan);
     }
 };

@@ -39,9 +39,6 @@ void InTieuDe(string tieuDe)
 
 int main()
 {
-   
-
-    // GroupAndBlacklist la lop con cuoi cung
     // (QuanlyDanhba -> ChucNang -> HotroHienthi -> NoteDB -> DanhBaYeuThich -> GroupAndBlacklist)
     // -> 1 doi tuong dung duoc tat ca chuc nang tren CUNG 1 danh ba
     GroupAndBlacklist qlDanhBa;
@@ -50,7 +47,7 @@ int main()
     string fileYeuThich = "yeuthich.txt";
     string fileKhanCap = "khancap.txt";
     string fileNhom = "nhom.txt";
-    string fileChuongGa = "chuongga.txt";
+    string fileDanhSachChan = "danhsachchan.txt";
 
     cout << "Dang tien hanh doc file: " << tenFile << "...\n\n";
 
@@ -58,7 +55,7 @@ int main()
     qlDanhBa.DocYeuThich(fileYeuThich);
     qlDanhBa.DocKhanCap(fileKhanCap);
     qlDanhBa.DocNhom(fileNhom);
-    qlDanhBa.DocChuongGa(fileChuongGa);
+    qlDanhBa.DocDanhSachChan(fileDanhSachChan);
 
     qlDanhBa.Display();
     int luachon;
@@ -76,7 +73,7 @@ int main()
         cout << "[8]. So khan cap (phim tat)" << endl;
         cout << "[9]. Danh sach lien lac sap den sinh nhat." << endl;
         cout << "[10]. Quan ly nhom (group)" << endl;
-        cout << "[11]. Chuong ga (blacklist)" << endl;
+        cout << "[11]. Danh sach chan (blacklist)" << endl;
         cout << "[0]. Thoat" << endl;
         cout << string(50, '=') << endl;
 
@@ -246,30 +243,30 @@ int main()
             } while (chonNhom != 0);
             break;
         case 11:
-            int chonCG;
+            int chonChan;
             do
             {
-                InTieuDe("MENU CHUONG GA (BLACKLIST)");
-                cout << "[1]. Xem chuong ga" << endl;
-                cout << "[2]. Cho 1 nguoi ra chuong ga" << endl;
-                cout << "[3]. Tha 1 nguoi khoi chuong ga" << endl;
+                InTieuDe("MENU DANH SACH CHAN (BLACKLIST)");
+                cout << "[1]. Xem danh sach chan" << endl;
+                cout << "[2]. Chan 1 so dien thoai" << endl;
+                cout << "[3]. Bo chan 1 so dien thoai" << endl;
                 cout << "[4]. Gia lap cuoc goi den" << endl;
                 cout << "[0]. Tro ve menu chinh" << endl;
                 cout << string(50, '=') << endl;
-                chonCG = NhapLuaChon();
+                chonChan = NhapLuaChon();
 
-                switch (chonCG)
+                switch (chonChan)
                 {
                 case 1:
-                    qlDanhBa.HienThiChuongGa();
+                    qlDanhBa.HienThiDanhSachChan();
                     break;
                 case 2:
-                    qlDanhBa.ChoRaChuongGa();
-                    qlDanhBa.LuuChuongGa(fileChuongGa);
+                    qlDanhBa.ThemVaoDanhSachChan();
+                    qlDanhBa.LuuDanhSachChan(fileDanhSachChan);
                     break;
                 case 3:
-                    qlDanhBa.ThaKhoiChuongGa();
-                    qlDanhBa.LuuChuongGa(fileChuongGa);
+                    qlDanhBa.XoaKhoiDanhSachChan();
+                    qlDanhBa.LuuDanhSachChan(fileDanhSachChan);
                     break;
                 case 4:
                     qlDanhBa.GiaLapCuocGoiDen();
@@ -279,7 +276,7 @@ int main()
                 default:
                     cout << "Lua chon khong hop le!\n";
                 }
-            } while (chonCG != 0);
+            } while (chonChan != 0);
             break;
         case 0:
             cout << "Tam biet!\n";
